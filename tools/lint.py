@@ -2,7 +2,13 @@
 """Lint registry.yaml: schema shape, duplicate oids/names, parent arcs present, no internal
 topology (IPs, private hostnames) anywhere in the repo. Exit 1 on any finding."""
 import re, sys, pathlib, json
-import yaml  # PyYAML
+import yaml, datetime as _dt
+
+def _load(text):
+    d = yaml.safe_load(text) or {}
+    for a in d.get('arcs', []):
+        if isinstance(a.get('since'), _dt.date): a['since'] = a['since'].isoformat()
+    return d  # PyYAML
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 FORBIDDEN = [
@@ -13,7 +19,7 @@ FORBIDDEN = [
 
 def main() -> int:
     findings = []
-    reg = yaml.safe_load((ROOT / "registry.yaml").read_text())
+    reg = _load((ROOT / "registry.yaml").read_text())
     schema = json.loads((ROOT / "schema" / "registry.schema.json").read_text())
     try:
         import jsonschema

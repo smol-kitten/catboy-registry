@@ -3,10 +3,19 @@
 ref (default: origin/main). Only `status` (and `spec`, `owner`) may change; arcs may be added."""
 import subprocess, sys, pathlib, yaml
 
+
+def _load(text):
+    import datetime as _dt
+    d = yaml.safe_load(text) or {}
+    for a in d.get('arcs', []):
+        if isinstance(a.get('since'), _dt.date): a['since'] = a['since'].isoformat()
+    return d
+
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 BASE = sys.argv[1] if len(sys.argv) > 1 else "origin/main"
 
-def load(text): return {a["oid"]: a for a in (yaml.safe_load(text) or {}).get("arcs", [])}
+def load(text): return {a["oid"]: a for a in (_load(text)).get("arcs", [])}
 
 try:
     old = load(subprocess.check_output(["git", "-C", str(ROOT), "show", f"{BASE}:registry.yaml"], text=True))

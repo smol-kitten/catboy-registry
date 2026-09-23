@@ -3,9 +3,18 @@
 With pen == null the OID strings contain the literal token <pen>; `--publish` refuses that."""
 import sys, pathlib, yaml
 
+
+def _load(text):
+    import datetime as _dt
+    d = yaml.safe_load(text) or {}
+    for a in d.get('arcs', []):
+        if isinstance(a.get('since'), _dt.date): a['since'] = a['since'].isoformat()
+    return d
+
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 OUT = ROOT / "build"
-reg = yaml.safe_load((ROOT / "registry.yaml").read_text())
+reg = _load((ROOT / "registry.yaml").read_text())
 pen = reg.get("pen")
 if "--publish" in sys.argv and not pen:
     print("gen: pen is null — refusing to publish"); sys.exit(2)
