@@ -1,0 +1,82 @@
+CATBOY-AGENT-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, OBJECT-IDENTITY, enterprises
+        FROM SNMPv2-SMI
+    DisplayString, DateAndTime
+        FROM SNMPv2-TC
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF;
+
+catboy MODULE-IDENTITY
+    LAST-UPDATED "202609230000Z"
+    ORGANIZATION "catboy.systems"
+    CONTACT-INFO "Marc Schneider, hostmaster@catboy.systems"
+    DESCRIPTION  "Root of the catboy.systems enterprise arc (1.3.6.1.4.1.{{PEN}}). Arc .1 = catboy.systems."
+    REVISION     "202609230000Z"
+    DESCRIPTION  "Initial version (rendered from the catboy-registry template)."
+    ::= { enterprises {{PEN}} }
+
+catboySystems  OBJECT IDENTIFIER ::= { catboy 1 }
+catboySnmp     OBJECT IDENTIFIER ::= { catboySystems 4 }
+
+catboyAgentSysObjectID OBJECT-IDENTITY
+    STATUS      current
+    DESCRIPTION "sysObjectID value reported by hosts running catboy-agent."
+    ::= { catboySnmp 1 }
+
+catboyAgentObjects OBJECT IDENTIFIER ::= { catboySnmp 2 }
+
+catboyAgentVersion OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..64))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Installed catboy-agent version."
+    ::= { catboyAgentObjects 1 }
+
+catboyAgentEnrolState OBJECT-TYPE
+    SYNTAX      INTEGER { unenrolled(1), pending(2), enrolled(3), revoked(4) }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Enrolment state of this host with the fleet control plane."
+    ::= { catboyAgentObjects 2 }
+
+catboyAgentTrustAnchor OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (64))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SHA-256 fingerprint (hex) of the root CA installed as trust anchor."
+    ::= { catboyAgentObjects 3 }
+
+catboyAgentLastHeartbeat OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Time of the last successful heartbeat to the control plane."
+    ::= { catboyAgentObjects 4 }
+
+catboyAgentSite OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..32))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Site slug the host belongs to."
+    ::= { catboyAgentObjects 5 }
+
+catboyAgentConformance OBJECT IDENTIFIER ::= { catboySnmp 3 }
+catboyAgentGroups      OBJECT IDENTIFIER ::= { catboyAgentConformance 1 }
+catboyAgentCompliances OBJECT IDENTIFIER ::= { catboyAgentConformance 2 }
+
+catboyAgentGroup OBJECT-GROUP
+    OBJECTS { catboyAgentVersion, catboyAgentEnrolState, catboyAgentTrustAnchor, catboyAgentLastHeartbeat, catboyAgentSite }
+    STATUS  current
+    DESCRIPTION "Objects every catboy-agent host exposes."
+    ::= { catboyAgentGroups 1 }
+
+catboyAgentCompliance MODULE-COMPLIANCE
+    STATUS  current
+    DESCRIPTION "Compliance for catboy-agent hosts."
+    MODULE
+        MANDATORY-GROUPS { catboyAgentGroup }
+    ::= { catboyAgentCompliances 1 }
+
+END

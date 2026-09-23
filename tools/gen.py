@@ -35,3 +35,19 @@ md = ["# Arcs", "", f"Enterprise arc: `{base}` (assignee: {reg['assignee']})", "
 md += [f"| `{base}.{a['oid']}` | {a['name']} | {a['status']} | {a['owner']} | {a['since']} | {a['purpose']} | {('[spec](../' + a['spec'] + ')') if a.get('spec') else ''} |" for a in reg["arcs"]]
 (ROOT / "docs" / "arcs.md").write_text("\n".join(md) + "\n")
 print(f"gen: {len(arcs)} arcs -> build/{{dotnet,php,python}} + docs/arcs.md (pen={pen})")
+
+# --- spec templates -------------------------------------------------------------------------
+# templates/**/*.tmpl are rendered with {{PEN}} = the assigned number, or 32473 (the IANA
+# documentation PEN, RFC 5612) while pen is null so smilint/asn1tools can run in CI. The rendered
+# copies live in build/specs and are labelled DRY-RUN when the number is the placeholder.
+TPL = ROOT / "templates"
+dry = pen is None
+effective = pen if pen else 32473
+for t in sorted(TPL.rglob("*.tmpl")):
+    out = OUT / "specs" / t.relative_to(TPL).with_suffix("")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    text = t.read_text().replace("{{PEN}}", str(effective))
+    if dry:
+        text = ("-- DRY-RUN RENDER: enterprise number 32473 is the IANA documentation PEN (RFC 5612), NOT ours\n" if out.suffix == ".asn1" else "-- DRY-RUN RENDER: 32473 = IANA documentation PEN (RFC 5612), NOT ours\n") + text
+    out.write_text(text)
+    print(f"gen: rendered {out.relative_to(ROOT)} (pen={'DRY-RUN 32473' if dry else pen})")

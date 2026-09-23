@@ -1,0 +1,14 @@
+-- catboy.systems CMS signed attributes (arc 1.3.6.1.4.1.{{PEN}}.1.2.2)
+CatboySignedAttributes DEFINITIONS IMPLICIT TAGS ::= BEGIN
+
+IMPORTS RunMetadata FROM CatboyExtensions;
+
+id-catboy-aa-runMetadata OBJECT IDENTIFIER ::= { iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) {{PEN}} 1 2 2 }
+
+-- The attribute value is a single RunMetadata (same structure as the X.509 extension).
+CatboyRunMetadataAttribute ::= SEQUENCE {
+    attrType   OBJECT IDENTIFIER,   -- id-catboy-aa-runMetadata
+    attrValues SET SIZE (1) OF RunMetadata
+}
+
+END
