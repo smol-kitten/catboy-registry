@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "catboy capability announcement (arc .1.10)",
+  "type": "object",
+  "required": ["v", "roles"],
+  "properties": {
+    "v": {"type": "integer", "minimum": 1},
+    "roles": {"type": "array", "items": {"enum": ["agent", "netpaw", "catcmdb", "pki", "repo"]}},
+    "pki": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "caps": {"type": "array", "items": {"type": "string", "pattern": "^[a-z0-9-]+(\\.[0-9]+)?$"}},
+    "site": {"type": "string"}
+  }
+}
