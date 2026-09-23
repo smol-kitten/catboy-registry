@@ -1,0 +1,35 @@
+-- catboy.systems private X.509 extensions (arc 1.3.6.1.4.1.{{PEN}}.1.2)
+-- Rendered from the catboy-registry template; do not edit the rendered copy.
+CatboyExtensions DEFINITIONS IMPLICIT TAGS ::= BEGIN
+
+id-catboy OBJECT IDENTIFIER ::= { iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) {{PEN}} }
+id-catboy-systems OBJECT IDENTIFIER ::= { id-catboy 1 }
+id-catboy-ext OBJECT IDENTIFIER ::= { id-catboy-systems 2 }
+
+-- .1.2.1  CI run metadata on code-signing leaves (Fulcio-mirrored field set)
+id-catboy-ext-runMetadata OBJECT IDENTIFIER ::= { id-catboy-ext 1 }
+
+RunMetadata ::= SEQUENCE {
+    version        INTEGER DEFAULT 1,
+    issuer         UTF8String,                -- e.g. https://token.actions.githubusercontent.com
+    repository     UTF8String,                -- owner/repo
+    workflowRef    UTF8String,                -- owner/repo/.github/workflows/x.yml@refs/heads/main
+    sha            OCTET STRING (SIZE (20..32)),
+    runId          UTF8String,
+    runAttempt     INTEGER OPTIONAL,
+    trigger        UTF8String OPTIONAL,       -- push | release | workflow_dispatch ...
+    runnerName     UTF8String OPTIONAL,
+    buildConfigUri UTF8String OPTIONAL
+}
+
+-- .1.2.3  Catboy ID card (Identity CA client certificates)
+id-catboy-ext-idCard OBJECT IDENTIFIER ::= { id-catboy-ext 3 }
+
+IdCard ::= SEQUENCE {
+    version   INTEGER DEFAULT 1,
+    cardGuid  OCTET STRING (SIZE (16)),
+    pronouns  UTF8String OPTIONAL,
+    issuedAt  GeneralizedTime
+}
+
+END

@@ -9,10 +9,15 @@ jobs:
         with: { fetch-depth: 0 }
       - uses: actions/setup-python@v6
         with: { python-version: "3.12" }
-      - run: pip install pyyaml jsonschema
+      - run: pip install pyyaml jsonschema asn1tools && sudo apt-get install -y -q smitools >/dev/null
       - run: python3 tools/lint.py --strict
       - run: python3 tools/immutability.py origin/main
         if: github.event_name == 'pull_request'
+      - name: render + lint specs (MIB via smilint, ASN.1 via asn1tools, DER round-trip)
+        run: |
+          python3 tools/gen.py
+          SMIPATH=$PWD/templates/snmp/base smilint -l 6 -s build/specs/snmp/CATBOY-AGENT-MIB.txt
+          python3 tools/asn1check.py
       - name: generated docs are current
         run: |
           python3 tools/gen.py
