@@ -13,4 +13,7 @@ jobs:
       - run: python3 tools/lint.py --strict
       - run: python3 tools/immutability.py origin/main
         if: github.event_name == 'pull_request'
-      - run: python3 tools/gen.py && git diff --exit-code -- docs/arcs.md || (echo "docs/arcs.md is stale: run tools/gen.py and commit"; exit 1)
+      - name: generated docs are current
+        run: |
+          python3 tools/gen.py
+          git diff --exit-code -- docs/arcs.md || { echo "docs/arcs.md is stale - run tools/gen.py and commit"; exit 1; }
