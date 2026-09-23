@@ -1,0 +1,12 @@
+# RFC 5424 structured-data identifiers. Non-IANA SD-IDs MUST be "<name>@<enterprise number>".
+enterprise_number: <pen>
+sd_ids:
+  - id: catboy@<pen>
+    purpose: fleet-wide fields on any log line
+    params: {ci_id: "CatCMDB configuration-item id", site: "site slug", actor: "user or agent id", event: "event name", run_id: "CI run id when applicable"}
+  - id: netpaw@<pen>
+    purpose: NetPaw incident/action export (replaces the placeholder netpaw@0)
+    params: {profile: "profile name", adapter: "adapter name", action: "applied|reverted|failed"}
+  - id: dropmenot@<pen>
+    purpose: DropMeNot audit events to a SIEM
+    params: {actor: "user id", object: "object id", action: "audit action", ip_hash: "hashed client address"}

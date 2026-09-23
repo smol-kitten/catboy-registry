@@ -1,0 +1,19 @@
+name: lint
+on: [push, pull_request]
+permissions: { contents: read }
+jobs:
+  lint:
+    runs-on: ubuntu-latest   # public repo: never self-hosted (fork PRs would run on fleet runners)
+    steps:
+      - uses: actions/checkout@v5
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.12" }
+      - run: pip install pyyaml jsonschema
+      - run: python3 tools/lint.py --strict
+      - run: python3 tools/immutability.py origin/main
+        if: github.event_name == 'pull_request'
+      - name: generated docs are current
+        run: |
+          python3 tools/gen.py
+          git diff --exit-code -- docs/arcs.md || { echo "docs/arcs.md is stale - run tools/gen.py and commit"; exit 1; }

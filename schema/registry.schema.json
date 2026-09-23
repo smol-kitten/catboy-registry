@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "catboy-registry",
+  "type": "object",
+  "required": ["pen", "assignee", "arcs"],
+  "properties": {
+    "pen": {"type": ["integer", "null"], "minimum": 1},
+    "assignee": {"type": "string"},
+    "arcs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["oid", "name", "status", "owner", "since", "purpose"],
+        "properties": {
+          "oid": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)*$"},
+          "name": {"type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"},
+          "status": {"enum": ["reserved", "active", "deprecated"]},
+          "owner": {"type": "string"},
+          "since": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+          "purpose": {"type": "string", "minLength": 8},
+          "spec": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
