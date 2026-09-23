@@ -17,11 +17,11 @@ arcs:
   - {oid: "1.2.1",  name: x509-run-metadata,     status: reserved, owner: catboy.systems,  since: 2026-09-23, purpose: CI run metadata on code-signing leaves (Fulcio-mirrored field set), spec: specs/x509/README.md}
   - {oid: "1.2.2",  name: cms-run-metadata,      status: reserved, owner: catboy.systems,  since: 2026-09-23, purpose: the same run metadata as a CMS signed attribute in detached .p7s, spec: specs/cms/README.md}
   - {oid: "1.2.3",  name: x509-id-card,          status: reserved, owner: catboy.systems,  since: 2026-09-23, purpose: Catboy ID card extension (card GUID, pronoun set) for Identity CA client certs}
-  - {oid: "1.3",    name: syslog-sd-ids,         status: reserved, owner: catboy.systems,  since: 2026-09-23, purpose: RFC 5424 SD-ID enterprise number for catboy@<pen>, netpaw@<pen>, dropmenot@<pen>, spec: specs/syslog/sd-ids.yaml}
+  - {oid: "1.3",    name: syslog-sd-ids,         status: reserved, owner: catboy.systems,  since: 2026-09-23, purpose: 'RFC 5424 SD-ID enterprise number for catboy@<pen>, netpaw@<pen>, dropmenot@<pen>', spec: specs/syslog/sd-ids.yaml}
   - {oid: "1.4",    name: snmp,                  status: reserved, owner: catboy.systems,  since: 2026-09-23, purpose: SMIv2 MIB root (CATBOY-AGENT-MIB), spec: specs/snmp/README.md}
   - {oid: "1.4.1",  name: snmp-sysobjectid-agent,status: reserved, owner: catboy.systems,  since: 2026-09-23, purpose: sysObjectID value for hosts running catboy-agent}
   - {oid: "1.5",    name: dhcp-vendor-options,   status: reserved, owner: catboy.systems,  since: 2026-09-23, purpose: DHCPv4 option 125 / option 43 and DHCPv6 option 17 sub-option namespace, spec: specs/dhcp/vendor-options.yaml}
-  - {oid: "1.6",    name: uuid-namespace,        status: reserved, owner: catboy.systems,  since: 2026-09-23, purpose: uuid5(NAMESPACE_OID, "1.3.6.1.4.1.<pen>") = the fleet UUID namespace, spec: specs/uuid/namespace.md}
+  - {oid: "1.6",    name: uuid-namespace,        status: reserved, owner: catboy.systems,  since: 2026-09-23, purpose: 'uuid5(NAMESPACE_OID, "1.3.6.1.4.1.<pen>") = the fleet UUID namespace', spec: specs/uuid/namespace.md}
   - {oid: "1.7",    name: ldap,                  status: reserved, owner: catboy.systems,  since: 2026-09-23, purpose: LDAP attribute types and object classes (unused today)}
   - {oid: "1.8",    name: ipfix,                 status: reserved, owner: catboy.systems,  since: 2026-09-23, purpose: IPFIX enterprise-specific information elements (unused today)}
   - {oid: "1.9",    name: radius,                status: reserved, owner: catboy.systems,  since: 2026-09-23, purpose: RADIUS vendor-specific attributes (unused today)}
