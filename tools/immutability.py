@@ -17,12 +17,19 @@ BASE = sys.argv[1] if len(sys.argv) > 1 else "origin/main"
 
 def load(text): return {a["oid"]: a for a in (_load(text)).get("arcs", [])}
 
+
+def load_pen(text): return _load(text).get("pen")
+
 try:
     old = load(subprocess.check_output(["git", "-C", str(ROOT), "show", f"{BASE}:registry.yaml"], text=True))
 except subprocess.CalledProcessError:
     print(f"immutability: no {BASE}:registry.yaml (first commit) — nothing to compare"); sys.exit(0)
 new = load((ROOT / "registry.yaml").read_text())
 bad = []
+old_pen = load_pen(subprocess.check_output(["git", "-C", str(ROOT), "show", f"{BASE}:registry.yaml"], text=True))
+new_pen = load_pen((ROOT / "registry.yaml").read_text())
+if old_pen is not None and new_pen != old_pen:
+    bad.append(f"pen changed {old_pen} -> {new_pen} (set once when IANA assigns it, never changed)")
 for oid, a in old.items():
     if oid not in new: bad.append(f"{oid} ({a['name']}) removed — arcs are never removed, set status: deprecated")
     else:

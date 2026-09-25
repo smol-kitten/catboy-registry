@@ -1,6 +1,6 @@
 # DHCPv4 option 125 (RFC 3925, enterprise-number keyed) with option 43 fallback; DHCPv6 option 17.
 # Purpose: zero-touch enrol — a host learns where its control plane is without a typed URL.
-enterprise_number: <pen>
+enterprise_number: 66963
 suboptions:
   - {code: 1, name: catcmdb-url,      type: string, purpose: "HTTPS base URL of the CatCMDB API for enrolment"}
   - {code: 2, name: site,             type: string, purpose: "site slug the network belongs to"}
@@ -9,4 +9,4 @@ suboptions:
   - {code: 5, name: pki-url,          type: string, purpose: "HTTPS base URL where trust material is published"}
   - {code: 6, name: discovery-domain, type: string, purpose: "DNS-SD domain to browse for _catboy._tcp"}
 option43_fallback: {vendor_class_identifier: "catboy", encoding: "same sub-options, encapsulated per RFC 2132 §8.4"}
-dhcpv6_option17: {enterprise_number: <pen>, encoding: "same sub-option codes"}
+dhcpv6_option17: {enterprise_number: 66963, encoding: "same sub-option codes"}
