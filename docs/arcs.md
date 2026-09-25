@@ -10,6 +10,7 @@ Enterprise arc: `1.3.6.1.4.1.66963` (assignee: Marc Schneider)
 | `1.3.6.1.4.1.66963.1.1.2` | policy-identity | reserved | catboy.systems | 2026-09-23 | policy for the Identity CA (people/devices) |  |
 | `1.3.6.1.4.1.66963.1.1.3` | policy-code-signing | reserved | catboy.systems | 2026-09-23 | policy for the yearly Code Signing CAs |  |
 | `1.3.6.1.4.1.66963.1.1.4` | policy-timestamping | reserved | catboy.systems | 2026-09-23 | policy for the Timestamp CA |  |
+| `1.3.6.1.4.1.66963.1.1.99` | policy-staging | reserved | catboy.systems | 2026-09-25 | staging hierarchy (generation 0, R0/CB0) - no assurance; never asserted by production CAs |  |
 | `1.3.6.1.4.1.66963.1.2` | x509-cms-extensions | reserved | catboy.systems | 2026-09-23 | private X.509 extensions and CMS signed attributes | [spec](../specs/x509/README.md) |
 | `1.3.6.1.4.1.66963.1.2.1` | x509-run-metadata | reserved | catboy.systems | 2026-09-23 | CI run metadata on code-signing leaves (Fulcio-mirrored field set) | [spec](../specs/x509/README.md) |
 | `1.3.6.1.4.1.66963.1.2.2` | cms-run-metadata | reserved | catboy.systems | 2026-09-23 | the same run metadata as a CMS signed attribute in detached .p7s | [spec](../specs/cms/README.md) |
