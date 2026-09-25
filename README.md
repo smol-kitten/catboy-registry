@@ -1,8 +1,8 @@
 # catboy-registry
 
-Source of truth for everything allocated under the IANA Private Enterprise Number of catboy.systems / m-schneider.cc (`1.3.6.1.4.1.<pen>`): the arc registry, the protocol specifications that use it, and generated constant packages so no project hardcodes an OID.
+Source of truth for everything allocated under the IANA Private Enterprise Number of catboy.systems / m-schneider.cc (`1.3.6.1.4.1.66963`): the arc registry, the protocol specifications that use it, and generated constant packages so no project hardcodes an OID.
 
-**Status:** the PEN is applied for and not yet assigned. `registry.yaml` carries `pen: null`; everything builds, nothing publishes until the number arrives.
+**Status:** IANA assigned Private Enterprise Number **66963** on 2026-09-25 (registrant: Marc Schneider; [IANA registry](https://www.iana.org/assignments/enterprise-numbers/)). The enterprise arc is `1.3.6.1.4.1.66963`. `pen` in `registry.yaml` is set once and CI refuses any later change.
 
 ## What is in here
 
@@ -24,7 +24,7 @@ Source of truth for everything allocated under the IANA Private Enterprise Numbe
 
 ## Consumers (planned)
 
-NetPaw syslog export (`netpaw@<pen>`), DropMeNot audit log, CatCMDB SNMP vendor map, PoloPack media types, the catboy.systems PKI (policy OIDs and the run-metadata extension), catboy-agent DHCP zero-touch enrol, DNS-SD discovery (`_catboy._tcp`).
+NetPaw syslog export (`netpaw@66963`), DropMeNot audit log, CatCMDB SNMP vendor map, PoloPack media types, the catboy.systems PKI (policy OIDs and the run-metadata extension), catboy-agent DHCP zero-touch enrol, DNS-SD discovery (`_catboy._tcp`).
 
 ## Develop
 
@@ -32,5 +32,7 @@ NetPaw syslog export (`netpaw@<pen>`), DropMeNot audit log, CatCMDB SNMP vendor 
 pip install pyyaml jsonschema
 python3 tools/lint.py --strict
 python3 tools/immutability.py origin/main
-python3 tools/gen.py           # renders build/ and docs/arcs.md
+python3 tools/gen.py           # renders build/, docs/arcs.md and the published specs/
+python3 tools/mibcheck.py      # smilint every MIB, fail on any diagnostic
+python3 tools/asn1check.py     # compile + DER round-trip the ASN.1 modules
 ```

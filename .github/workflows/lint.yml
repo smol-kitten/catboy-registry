@@ -16,9 +16,14 @@ jobs:
       - name: render + lint specs (MIB via smilint, ASN.1 via asn1tools, DER round-trip)
         run: |
           python3 tools/gen.py
-          SMIPATH=$PWD/templates/snmp/base smilint -l 6 -s build/specs/snmp/CATBOY-AGENT-MIB.txt
+          python3 tools/mibcheck.py   # fails on any smilint diagnostic; smilint's exit code is 0 even on errors
           python3 tools/asn1check.py
-      - name: generated docs are current
+      - name: generated docs and published specs are current
         run: |
           python3 tools/gen.py
-          git diff --exit-code -- docs/arcs.md || { echo "docs/arcs.md is stale - run tools/gen.py and commit"; exit 1; }
+          git diff --exit-code -- docs/arcs.md specs/ || { echo "docs/arcs.md or specs/ is stale or hand-edited - run tools/gen.py and commit"; exit 1; }
+          test -z "$(git status --porcelain -- specs/)" || { git status --short -- specs/; echo "gen.py produced an uncommitted spec"; exit 1; }
+      - name: UUID namespace matches specs/uuid/namespace.md
+        run: |
+          ns=$(python3 -c 'import sys; sys.path.insert(0, "build/python"); import oid; print(oid.CATBOY_NAMESPACE)')
+          grep -q "= \`$ns\`" specs/uuid/namespace.md || { echo "namespace $ns not in specs/uuid/namespace.md"; exit 1; }
