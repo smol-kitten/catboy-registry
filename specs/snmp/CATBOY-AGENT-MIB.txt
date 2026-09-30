@@ -2,7 +2,8 @@
 CATBOY-AGENT-MIB DEFINITIONS ::= BEGIN
 
 IMPORTS
-    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE, Unsigned32
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE, Unsigned32,
+    Counter32
         FROM SNMPv2-SMI
     DisplayString, DateAndTime, TruthValue
         FROM SNMPv2-TC
@@ -12,12 +13,17 @@ IMPORTS
         FROM CATBOY-SMI;
 
 catboyAgentMIB MODULE-IDENTITY
-    LAST-UPDATED "202609250000Z"
+    LAST-UPDATED "202609300000Z"
     ORGANIZATION "catboy.systems"
     CONTACT-INFO "Marc Schneider, hostmaster@catboy.systems"
     DESCRIPTION  "Health and identity of a host running catboy-agent, served by
                  the agent as an AgentX subagent (RFC 2741) of the host's SNMP
                  master agent. Read-only; SNMPv3 authPriv only."
+    REVISION     "202609300000Z"
+    DESCRIPTION  "Added catboyAgentRelease, catboyAgentBuild,
+                 catboyAgentFleetRole, catboyAgentCommandsOk,
+                 catboyAgentCommandsFailed, catboyAgentReleaseGroup and
+                 catboyAgentComplianceV2."
     REVISION     "202609250000Z"
     DESCRIPTION  "Initial version (rendered from the catboy-registry template)."
     ::= { catboySnmp 2 }
@@ -152,6 +158,59 @@ catboyAgentServiceLastChange OBJECT-TYPE
                  octets are zero if unknown."
     ::= { catboyAgentServiceEntry 4 }
 
+-- Release and command counters (added 2026-09-30)
+
+catboyAgentRelease OBJECT-TYPE
+    SYNTAX      OBJECT IDENTIFIER
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The release of the running agent as an OID in the catboy-agent
+                 software arc: 1.3.6.1.4.1.66963.1.11.1.1.<major>.<minor>.<patch>
+                 (registry specs/software). { 0 0 } if the version is not a
+                 plain major.minor.patch."
+    ::= { catboyAgentObjects 10 }
+
+catboyAgentBuild OBJECT-TYPE
+    SYNTAX      OBJECT IDENTIFIER
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The build of the running agent as an OID in the catboy-agent
+                 software arc: 1.3.6.1.4.1.66963.1.11.1.3.<run_id>, where run_id
+                 is the GitHub Actions run of the build workflow. { 0 0 } for a
+                 build made outside that workflow."
+    ::= { catboyAgentObjects 11 }
+
+catboyAgentFleetRole OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..64))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The role of this host in the fleet, as configured on the agent
+                 (for example hypervisor, dns, ca, waf). Zero-length if not
+                 configured."
+    ::= { catboyAgentObjects 12 }
+
+catboyAgentCommandsOk OBJECT-TYPE
+    SYNTAX      Counter32
+    UNITS       "commands"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Commands from the control plane (deploys, updates and the other
+                 whitelisted actions) that this agent ran to success. The
+                 counter starts at zero when the agent starts; a discontinuity
+                 is shown by sysUpTime of the master agent and by
+                 catboyAgentLastHeartbeat."
+    ::= { catboyAgentObjects 13 }
+
+catboyAgentCommandsFailed OBJECT-TYPE
+    SYNTAX      Counter32
+    UNITS       "commands"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Commands from the control plane that this agent ran and that
+                 failed, or that it refused. The counter starts at zero when the
+                 agent starts."
+    ::= { catboyAgentObjects 14 }
+
 -- Notifications
 
 catboyAgentDiskFullNotification NOTIFICATION-TYPE
@@ -203,5 +262,21 @@ catboyAgentCompliance MODULE-COMPLIANCE
         MANDATORY-GROUPS { catboyAgentGroup, catboyAgentServiceGroup,
                            catboyAgentNotificationGroup }
     ::= { catboyAgentCompliances 1 }
+
+catboyAgentReleaseGroup OBJECT-GROUP
+    OBJECTS { catboyAgentRelease, catboyAgentBuild, catboyAgentFleetRole,
+              catboyAgentCommandsOk, catboyAgentCommandsFailed }
+    STATUS  current
+    DESCRIPTION "Release, build, fleet role and command counters."
+    ::= { catboyAgentGroups 4 }
+
+catboyAgentComplianceV2 MODULE-COMPLIANCE
+    STATUS  current
+    DESCRIPTION "Compliance for catboy-agent hosts from revision 202609300000Z."
+    MODULE
+        MANDATORY-GROUPS { catboyAgentGroup, catboyAgentServiceGroup,
+                           catboyAgentNotificationGroup,
+                           catboyAgentReleaseGroup }
+    ::= { catboyAgentCompliances 2 }
 
 END
