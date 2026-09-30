@@ -1,0 +1,54 @@
+{
+ "description": "uuid5, entry ids and the X.667 2.25 OID form",
+ "namespace": "f71da7a3-f538-5cae-b8e8-08f99e367ef3",
+ "oid_from_uuid": [
+  {
+   "uuid": "00000000-0000-0000-0000-000000000000",
+   "oid": "2.25.0"
+  },
+  {
+   "uuid": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+   "oid": "2.25.329800735698586629295641978511506172918"
+  },
+  {
+   "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+   "oid": "2.25.340282366920938463463374607431768211455"
+  },
+  {
+   "uuid": "f71da7a3-f538-5cae-b8e8-08f99e367ef3",
+   "oid": "2.25.328473291720257995195417318491367571187"
+  }
+ ],
+ "entry_id": [
+  {
+   "kind": "software",
+   "key": "catboy-agent",
+   "want": "213e6090-6a94-5e7f-b3c4-4ac3b1b30ef9"
+  },
+  {
+   "kind": "software",
+   "key": "catwaf",
+   "want": "87f0dd91-89de-5b1b-9128-4a986b305da6"
+  },
+  {
+   "kind": "software",
+   "key": "pawkit",
+   "want": "dc7c5da1-dce2-5d60-8922-44c5e26b6056"
+  },
+  {
+   "kind": "state-system",
+   "key": "catwaf/1/sites",
+   "want": "c6e68e9f-3989-5bbb-888b-f6228f3cbb21"
+  },
+  {
+   "kind": "state-system",
+   "key": "pawkit/2/memory",
+   "want": "dc05ed8f-4e22-58cf-a952-b67c81b40527"
+  },
+  {
+   "kind": "route",
+   "key": "/",
+   "want": "fd67081d-dc2b-5048-a745-590b7be159cc"
+  }
+ ]
+}

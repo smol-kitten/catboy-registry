@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Refuse changes to the number, name or purpose of any arc that already exists on the base
-ref (default: origin/main). Only `status` (and `spec`, `owner`) may change; arcs may be added."""
+ref (default: origin/main). Only `status` (and `spec`, `owner`, `repo`) may change; arcs may be added.
+A software entry keeps its `purl` and `sysobjectid`; `superseded_by` may be set once, when the arc
+is deprecated (docs/arcs.md, correction procedure), and never changes after that."""
 import subprocess, sys, pathlib, yaml
 
 
@@ -33,8 +35,10 @@ if old_pen is not None and new_pen != old_pen:
 for oid, a in old.items():
     if oid not in new: bad.append(f"{oid} ({a['name']}) removed — arcs are never removed, set status: deprecated")
     else:
-        for k in ("name", "purpose", "since"):
+        for k in ("name", "purpose", "since", "purl", "sysobjectid"):
             if new[oid].get(k) != a.get(k): bad.append(f"{oid}: {k} changed '{a.get(k)}' -> '{new[oid].get(k)}' (immutable)")
+        if a.get("superseded_by") and new[oid].get("superseded_by") != a["superseded_by"]:
+            bad.append(f"{oid}: superseded_by changed '{a['superseded_by']}' -> '{new[oid].get('superseded_by')}' (set once)")
         if a["status"] == "deprecated" and new[oid]["status"] != "deprecated":
             bad.append(f"{oid}: deprecated arcs stay deprecated")
 for b in bad: print("IMMUTABILITY:", b)

@@ -177,3 +177,52 @@ arcs:
   owner: catboy.systems
   since: '2026-09-23'
   purpose: experiments; nothing under .9 is stable or published
+- oid: '1.11'
+  name: software
+  status: reserved
+  owner: catboy.systems
+  since: '2026-09-30'
+  purpose: software products - one arc per product; the product mints .1 release, .2 channel, .3 build and .4 data-format sub-arcs by the fixed grammar
+  spec: specs/software/README.md
+- oid: 1.11.1
+  name: catboy-agent
+  status: reserved
+  owner: catboy.systems
+  since: '2026-09-30'
+  purpose: catboy-agent (host agent, AgentX subagent); hosts report sysObjectID 1.4.1
+  spec: specs/software/README.md
+  purl: pkg:github/polo-nyan/catboy-agent
+  repo: https://github.com/polo-nyan/catboy-agent
+  sysobjectid: 1.4.1
+- oid: 1.11.2
+  name: catwaf
+  status: reserved
+  owner: catboy.systems
+  since: '2026-09-30'
+  purpose: CatWAF (web application firewall and reverse proxy)
+  spec: specs/software/README.md
+  purl: pkg:github/smol-kitten/cat-waf
+  repo: https://github.com/smol-kitten/cat-waf
+- oid: 1.11.3
+  name: pawkit
+  status: reserved
+  owner: catboy.systems
+  since: '2026-09-30'
+  purpose: pawkit (fleet toolkit and hub state sync)
+  spec: specs/software/README.md
+  purl: pkg:github/polo-nyan/pawkit
+  repo: https://github.com/polo-nyan/pawkit
+- oid: '1.12'
+  name: instances
+  status: reserved
+  owner: catboy.systems
+  since: '2026-09-30'
+  purpose: deployed instances - one small number per instance that needs one; neutral names, never a hostname or an address
+  spec: specs/state/README.md
+- oid: '1.13'
+  name: state-versioning
+  status: reserved
+  owner: catboy.systems
+  since: '2026-09-30'
+  purpose: state versioning - system, epoch chain, seq, root, HLC and the /.well-known/catboy-state document
+  spec: specs/state/README.md

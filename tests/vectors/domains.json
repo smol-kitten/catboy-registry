@@ -1,0 +1,179 @@
+{
+ "description": "canonical_domain + site_id + oid_from_uuid (specs/uuid/namespace.md, algorithm D)",
+ "cases": [
+  {
+   "input": "example.com",
+   "canonical": "example.com",
+   "site_id": "7ec905b4-e8ad-53a2-a929-3a4a0f00d105",
+   "site_oid": "2.25.168526494882592232567472548800746279173"
+  },
+  {
+   "input": "Example.COM",
+   "canonical": "example.com",
+   "site_id": "7ec905b4-e8ad-53a2-a929-3a4a0f00d105",
+   "site_oid": "2.25.168526494882592232567472548800746279173"
+  },
+  {
+   "input": "example.com.",
+   "canonical": "example.com",
+   "site_id": "7ec905b4-e8ad-53a2-a929-3a4a0f00d105",
+   "site_oid": "2.25.168526494882592232567472548800746279173"
+  },
+  {
+   "input": "EXAMPLE.org.",
+   "canonical": "example.org",
+   "site_id": "84e2965d-8846-5942-a2ad-0571780fb5ed",
+   "site_oid": "2.25.176634604305472435507397481456762598893"
+  },
+  {
+   "input": "www.example.org",
+   "canonical": "www.example.org",
+   "site_id": "3ad8f360-5fc1-5c52-8ccd-0404040543fc",
+   "site_oid": "2.25.78221696138040766718181437827598074876"
+  },
+  {
+   "input": "Bücher.Example.",
+   "canonical": "xn--bcher-kva.example",
+   "site_id": "d843cab5-9207-536a-8bb6-7765c31c374f",
+   "site_oid": "2.25.287465242411294682554098607778615277391"
+  },
+  {
+   "input": "bücher.example",
+   "canonical": "xn--bcher-kva.example",
+   "site_id": "d843cab5-9207-536a-8bb6-7765c31c374f",
+   "site_oid": "2.25.287465242411294682554098607778615277391"
+  },
+  {
+   "input": "xn--bcher-kva.example",
+   "canonical": "xn--bcher-kva.example",
+   "site_id": "d843cab5-9207-536a-8bb6-7765c31c374f",
+   "site_oid": "2.25.287465242411294682554098607778615277391"
+  },
+  {
+   "input": "XN--BCHER-KVA.EXAMPLE",
+   "canonical": "xn--bcher-kva.example",
+   "site_id": "d843cab5-9207-536a-8bb6-7765c31c374f",
+   "site_oid": "2.25.287465242411294682554098607778615277391"
+  },
+  {
+   "input": "straße.example",
+   "canonical": "xn--strae-oqa.example",
+   "site_id": "efba2310-3289-57e0-aab9-feee9e4844c3",
+   "site_oid": "2.25.318651969375909387918222083335932888259"
+  },
+  {
+   "input": "STRASSE.example",
+   "canonical": "strasse.example",
+   "site_id": "13718d90-3b88-5842-ab1e-b9d2816c02df",
+   "site_oid": "2.25.25844932711961800335783717422972535519"
+  },
+  {
+   "input": "Ελληνικά.example",
+   "canonical": "xn--hxargifdar.example",
+   "site_id": "754be219-486e-56e9-96af-de59b2c943fe",
+   "site_oid": "2.25.155913683598916070315770957019543585790"
+  },
+  {
+   "input": "ΣΊΣΥΦΟΣ.example",
+   "canonical": "xn--kxa6akbbkh.example",
+   "site_id": "255bbe1f-f43d-5cb4-ab17-dd3adb5f0459",
+   "site_oid": "2.25.49657791047654813033075763947329487961"
+  },
+  {
+   "input": "пример.example",
+   "canonical": "xn--e1afmkfd.example",
+   "site_id": "bb3231dc-6a2e-5c01-8edd-6f0b882949ec",
+   "site_oid": "2.25.248826261355833797799666013810358569452"
+  },
+  {
+   "input": "例え.テスト.example",
+   "canonical": "xn--r8jz45g.xn--zckzah.example",
+   "site_id": "5e964097-1174-5313-b672-9d6e78e7f232",
+   "site_oid": "2.25.125727586175631362440150669458623951410"
+  },
+  {
+   "input": "münchen。example",
+   "canonical": "xn--mnchen-3ya.example",
+   "site_id": "82fd3042-edef-5c27-8cc7-1d4291bf151e",
+   "site_oid": "2.25.174114269415605391874969993449685587230"
+  },
+  {
+   "input": "café.example．",
+   "canonical": "xn--caf-dma.example",
+   "site_id": "9b4720ae-8984-5403-8ef5-cbddbcf7cd01",
+   "site_oid": "2.25.206399655288984948695303629785097817345"
+  },
+  {
+   "input": "*.example.com",
+   "canonical": "*.example.com",
+   "site_id": "1afc3760-2b36-5272-a8cd-525b874e1ce4",
+   "site_oid": "2.25.35869509850563918234859311087351635172"
+  },
+  {
+   "input": "_acme.example.com",
+   "canonical": "_acme.example.com",
+   "site_id": "b62424a4-2795-5c12-991d-ffaa3712967b",
+   "site_oid": "2.25.242107161092176806593552720811219129979"
+  },
+  {
+   "input": "a-b.example",
+   "canonical": "a-b.example",
+   "site_id": "3a5cedcd-9d95-5885-9d75-fde2074cc616",
+   "site_oid": "2.25.77577738288129400162412761186040595990"
+  },
+  {
+   "input": "1.example",
+   "canonical": "1.example",
+   "site_id": "803a886b-0e10-5e30-a4e6-e25162bb4960",
+   "site_oid": "2.25.170445103567736315137992055658047555936"
+  },
+  {
+   "input": "",
+   "error": true
+  },
+  {
+   "input": ".",
+   "error": true
+  },
+  {
+   "input": "a..example",
+   "error": true
+  },
+  {
+   "input": ".example.com",
+   "error": true
+  },
+  {
+   "input": "exa mple.com",
+   "error": true
+  },
+  {
+   "input": "example.com:8443",
+   "error": true
+  },
+  {
+   "input": "ab--ü.example",
+   "error": true
+  },
+  {
+   "input": "-ü.example",
+   "error": true
+  },
+  {
+   "input": "ü-.example",
+   "error": true
+  },
+  {
+   "input": "α0--r.example",
+   "error": true
+  },
+  {
+   "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.example",
+   "error": true
+  },
+  {
+   "input": "abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi.abcdefghi",
+   "error": true
+  }
+ ]
+}

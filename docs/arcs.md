@@ -30,3 +30,20 @@ Enterprise arc: `1.3.6.1.4.1.66963` (assignee: Marc Schneider)
 | `1.3.6.1.4.1.66963.1.10` | capabilities | reserved | catboy.systems | 2026-09-23 | capability / protocol identifiers announced via DNS-SD _catboy._tcp and future catboy protocol work | [spec](../specs/capabilities/capability.schema.json) |
 | `1.3.6.1.4.1.66963.2` | m-schneider-cc | reserved | m-schneider.cc | 2026-09-23 | personal arc |  |
 | `1.3.6.1.4.1.66963.9` | scratch | active | catboy.systems | 2026-09-23 | experiments; nothing under .9 is stable or published |  |
+| `1.3.6.1.4.1.66963.1.11` | software | reserved | catboy.systems | 2026-09-30 | software products - one arc per product; the product mints .1 release, .2 channel, .3 build and .4 data-format sub-arcs by the fixed grammar | [spec](../specs/software/README.md) |
+| `1.3.6.1.4.1.66963.1.11.1` | catboy-agent | reserved | catboy.systems | 2026-09-30 | catboy-agent (host agent, AgentX subagent); hosts report sysObjectID 1.4.1 | [spec](../specs/software/README.md) |
+| `1.3.6.1.4.1.66963.1.11.2` | catwaf | reserved | catboy.systems | 2026-09-30 | CatWAF (web application firewall and reverse proxy) | [spec](../specs/software/README.md) |
+| `1.3.6.1.4.1.66963.1.11.3` | pawkit | reserved | catboy.systems | 2026-09-30 | pawkit (fleet toolkit and hub state sync) | [spec](../specs/software/README.md) |
+| `1.3.6.1.4.1.66963.1.12` | instances | reserved | catboy.systems | 2026-09-30 | deployed instances - one small number per instance that needs one; neutral names, never a hostname or an address | [spec](../specs/state/README.md) |
+| `1.3.6.1.4.1.66963.1.13` | state-versioning | reserved | catboy.systems | 2026-09-30 | state versioning - system, epoch chain, seq, root, HLC and the /.well-known/catboy-state document | [spec](../specs/state/README.md) |
+
+## Correcting a wrong entry
+
+A merged number never changes its meaning, also when the entry is wrong. To correct it:
+
+1. Set `status: deprecated` on the wrong arc and add `superseded_by: <new relative oid>`. Do not change its name, purpose or since.
+2. Add a new arc with the next free number and the correct content, in the same pull request.
+3. Never reuse the old number. `tools/immutability.py` refuses a change of name, purpose, since, purl or sysobjectid, a removed arc, a deprecated arc that becomes active again and a changed `superseded_by`.
+4. Consumers read the generated packages. The deprecated constant disappears from them (it stays in this table), so a build that still uses it fails and shows the change.
+
+Software sub-arcs (`.1.11.<n>.*`) are not registry entries: the product mints them by the grammar in [specs/software/README.md](../specs/software/README.md).

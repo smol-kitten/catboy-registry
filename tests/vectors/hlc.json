@@ -1,0 +1,184 @@
+{
+ "description": "HLC = Unix ms << 16 | logical (specs/state/README.md); 64-bit values are decimal strings",
+ "encode": [
+  {
+   "ms": "0",
+   "logical": "0",
+   "hlc": "0"
+  },
+  {
+   "ms": "0",
+   "logical": "1",
+   "hlc": "1"
+  },
+  {
+   "ms": "1",
+   "logical": "0",
+   "hlc": "65536"
+  },
+  {
+   "ms": "1790000000000",
+   "logical": "0",
+   "hlc": "117309440000000000"
+  },
+  {
+   "ms": "1790000000000",
+   "logical": "65535",
+   "hlc": "117309440000065535"
+  },
+  {
+   "ms": "140737488355327",
+   "logical": "7",
+   "hlc": "9223372036854710279"
+  },
+  {
+   "ms": "1790000000000",
+   "logical": "65536",
+   "error": true
+  },
+  {
+   "ms": "281474976710656",
+   "logical": "0",
+   "error": true
+  }
+ ],
+ "send": [
+  {
+   "name": "first event",
+   "last": "0",
+   "now": "1790000000000",
+   "want": "117309440000000000"
+  },
+  {
+   "name": "clock moved on",
+   "last": "117309440000000003",
+   "now": "1790000000005",
+   "want": "117309440000327680"
+  },
+  {
+   "name": "same ms",
+   "last": "117309440000000003",
+   "now": "1790000000000",
+   "want": "117309440000000004"
+  },
+  {
+   "name": "local clock went back 2 s",
+   "last": "117309440000000003",
+   "now": "1789999998000",
+   "want": "117309440000000004"
+  },
+  {
+   "name": "logical counter overflow carries into ms",
+   "last": "117309440000065535",
+   "now": "1790000000000",
+   "want": "117309440000065536"
+  }
+ ],
+ "receive": [
+  {
+   "name": "remote behind, local clock wins",
+   "last": "117309440000000000",
+   "remote": "117309439967232009",
+   "now": "1790000000010",
+   "max_drift_ms": "60000",
+   "want": "117309440000655360"
+  },
+  {
+   "name": "remote ahead within drift (skew 5 s)",
+   "last": "117309440000000002",
+   "remote": "117309440327680004",
+   "now": "1790000000000",
+   "max_drift_ms": "60000",
+   "want": "117309440327680005"
+  },
+  {
+   "name": "same ms, remote logical higher",
+   "last": "117309440000000002",
+   "remote": "117309440000000008",
+   "now": "1790000000000",
+   "max_drift_ms": "60000",
+   "want": "117309440000000009"
+  },
+  {
+   "name": "same ms, local logical higher",
+   "last": "117309440000000009",
+   "remote": "117309440000000008",
+   "now": "1790000000000",
+   "max_drift_ms": "60000",
+   "want": "117309440000000010"
+  },
+  {
+   "name": "local clock behind both (skew -3 s)",
+   "last": "117309440000000001",
+   "remote": "117309440000000001",
+   "now": "1789999997000",
+   "max_drift_ms": "60000",
+   "want": "117309440000000002"
+  },
+  {
+   "name": "all equal ms",
+   "last": "117309440000000005",
+   "remote": "117309440000000005",
+   "now": "1790000000000",
+   "max_drift_ms": "60000",
+   "want": "117309440000000006"
+  },
+  {
+   "name": "remote exactly at the drift limit",
+   "last": "117309440000000000",
+   "remote": "117309443932160000",
+   "now": "1790000000000",
+   "max_drift_ms": "60000",
+   "want": "117309443932160001"
+  },
+  {
+   "name": "remote 1 ms past the drift limit",
+   "last": "117309440000000000",
+   "remote": "117309443932225536",
+   "now": "1790000000000",
+   "max_drift_ms": "60000",
+   "error": "drift"
+  },
+  {
+   "name": "remote 10 min ahead (clock skew)",
+   "last": "117309440000000000",
+   "remote": "117309479321600000",
+   "now": "1790000000000",
+   "max_drift_ms": "60000",
+   "error": "drift"
+  },
+  {
+   "name": "remote 10 min ahead, drift allowed 1 h",
+   "last": "117309440000000000",
+   "remote": "117309479321600003",
+   "now": "1790000000000",
+   "max_drift_ms": "3600000",
+   "want": "117309479321600004"
+  },
+  {
+   "name": "logical overflow on receive carries into ms",
+   "last": "117309440000065535",
+   "remote": "117309440000065535",
+   "now": "1790000000000",
+   "max_drift_ms": "60000",
+   "want": "117309440000065536"
+  }
+ ],
+ "compare": [
+  {
+   "a": "117309440000000001",
+   "b": "117309440000000002",
+   "want": -1
+  },
+  {
+   "a": "117309440000000002",
+   "b": "117309440000000002",
+   "want": 0
+  },
+  {
+   "a": "117309440000065536",
+   "b": "117309440000065535",
+   "want": 1
+  }
+ ]
+}
