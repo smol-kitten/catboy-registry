@@ -1,0 +1,49 @@
+{
+ "description": "state root = sha256 over sorted 'id:rev:content_hash\\n' lines (specs/state/README.md)",
+ "root": [
+  {
+   "entries": [],
+   "want": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "entries": [
+    [
+     "7ec905b4-e8ad-53a2-a929-3a4a0f00d105",
+     1,
+     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    ]
+   ],
+   "want": "298fd9c57fa315075965d543d8dd3adeb000f2948319ed12c4ea4e110f029be2"
+  },
+  {
+   "entries": [
+    [
+     "84e2965d-8846-5942-a2ad-0571780fb5ed",
+     3,
+     "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+    ],
+    [
+     "7ec905b4-e8ad-53a2-a929-3a4a0f00d105",
+     12,
+     "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    ]
+   ],
+   "want": "f2b88f920b851482e5df17ca63b2b79d06efc2c5d497860f9e8e4c5f930c4faf"
+  },
+  {
+   "entries": [
+    [
+     "7ec905b4-e8ad-53a2-a929-3a4a0f00d105",
+     12,
+     "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    ],
+    [
+     "84e2965d-8846-5942-a2ad-0571780fb5ed",
+     3,
+     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    ]
+   ],
+   "want": "f2b88f920b851482e5df17ca63b2b79d06efc2c5d497860f9e8e4c5f930c4faf"
+  }
+ ]
+}

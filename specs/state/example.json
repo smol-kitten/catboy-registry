@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "system": "c6e68e9f-3989-5bbb-888b-f6228f3cbb21",
+  "epoch": "01928f3a-6c1e-7b3d-9a41-5f0c2e7d8b19",
+  "parent_epoch": "01927b10-2f4a-7c55-8e02-3d9a6b1c4f70",
+  "fork_seq": 1840,
+  "seq": 1873,
+  "root": "f2b88f920b851482e5df17ca63b2b79d06efc2c5d497860f9e8e4c5f930c4faf",
+  "hlc": "117309440000000004",
+  "instance": 1,
+  "software": "1.3.6.1.4.1.66963.1.11.2.1.3.0.12"
+}

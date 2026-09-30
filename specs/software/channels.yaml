@@ -1,0 +1,7 @@
+# Channel table for the .2.<channel> sub-arc of every software product (specs/software/README.md).
+# Append-only, like registry.yaml: a number keeps its name forever and is never reused.
+channels:
+- {number: 1, name: stable}
+- {number: 2, name: beta}
+- {number: 3, name: nightly}
+- {number: 4, name: dev}

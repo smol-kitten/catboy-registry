@@ -1,0 +1,251 @@
+{
+ "description": "canonical_path + route_id under the site of example.com (algorithm P)",
+ "site_domain": "example.com",
+ "site_id": "7ec905b4-e8ad-53a2-a929-3a4a0f00d105",
+ "cases": [
+  {
+   "input": "/",
+   "canonical": "/",
+   "route_id": "7b49d5ea-b0c8-5063-ba6d-e1f2ceea738c",
+   "route_oid": "2.25.163878419899564827449165884796175020940"
+  },
+  {
+   "input": "",
+   "canonical": "/",
+   "route_id": "7b49d5ea-b0c8-5063-ba6d-e1f2ceea738c",
+   "route_oid": "2.25.163878419899564827449165884796175020940"
+  },
+  {
+   "input": "/a",
+   "canonical": "/a",
+   "route_id": "73246bf9-7b7c-5dd1-bce9-d7e7656ec2d3",
+   "route_oid": "2.25.153050332186029642017843057439078793939"
+  },
+  {
+   "input": "/a/",
+   "canonical": "/a",
+   "route_id": "73246bf9-7b7c-5dd1-bce9-d7e7656ec2d3",
+   "route_oid": "2.25.153050332186029642017843057439078793939"
+  },
+  {
+   "input": "/a/b/",
+   "canonical": "/a/b",
+   "route_id": "4e319420-b3e2-51b5-97a3-b1709772a07d",
+   "route_oid": "2.25.103937210604885605398702727704572239997"
+  },
+  {
+   "input": "/a//",
+   "canonical": "/a",
+   "route_id": "73246bf9-7b7c-5dd1-bce9-d7e7656ec2d3",
+   "route_oid": "2.25.153050332186029642017843057439078793939"
+  },
+  {
+   "input": "/A/b",
+   "canonical": "/A/b",
+   "route_id": "eb18a0c4-33c3-538d-be24-df2b4d81e1b2",
+   "route_oid": "2.25.312496454864336373665381156083678175666"
+  },
+  {
+   "input": "/a/%2f",
+   "canonical": "/a/%2F",
+   "route_id": "5090937c-8ed5-5137-b69c-81fbdaf60ea5",
+   "route_oid": "2.25.107088921793130929708766625537623199397"
+  },
+  {
+   "input": "/a/%2F",
+   "canonical": "/a/%2F",
+   "route_id": "5090937c-8ed5-5137-b69c-81fbdaf60ea5",
+   "route_oid": "2.25.107088921793130929708766625537623199397"
+  },
+  {
+   "input": "/a/%2fb",
+   "canonical": "/a/%2Fb",
+   "route_id": "013d0902-4976-5aab-a421-5fb015c76d7d",
+   "route_oid": "2.25.1646140827033785394682908486975057277"
+  },
+  {
+   "input": "/%7Euser",
+   "canonical": "/~user",
+   "route_id": "18fbff7d-b8b2-5918-ba01-98a7f754b5d4",
+   "route_oid": "2.25.33209920385460319493213721386552702420"
+  },
+  {
+   "input": "/%7euser",
+   "canonical": "/~user",
+   "route_id": "18fbff7d-b8b2-5918-ba01-98a7f754b5d4",
+   "route_oid": "2.25.33209920385460319493213721386552702420"
+  },
+  {
+   "input": "/%41%42%43",
+   "canonical": "/ABC",
+   "route_id": "2621e35f-914d-5863-95c4-19c53d7169f3",
+   "route_oid": "2.25.50686621314782751383859778261821254131"
+  },
+  {
+   "input": "/a%2Db",
+   "canonical": "/a-b",
+   "route_id": "ecee4cfc-1217-50e8-840e-cff7fcc154be",
+   "route_oid": "2.25.314935135091797183651568392023671133374"
+  },
+  {
+   "input": "/a%20b",
+   "canonical": "/a%20b",
+   "route_id": "e47aa84d-c8d6-53e0-a03d-358de77a2d4a",
+   "route_oid": "2.25.303700856863240103261435687120257297738"
+  },
+  {
+   "input": "/a b",
+   "canonical": "/a%20b",
+   "route_id": "e47aa84d-c8d6-53e0-a03d-358de77a2d4a",
+   "route_oid": "2.25.303700856863240103261435687120257297738"
+  },
+  {
+   "input": "/ü",
+   "canonical": "/%C3%BC",
+   "route_id": "a0989890-6d53-5ec1-9cfd-70fffcaf2138",
+   "route_oid": "2.25.213468802817033644959652763308299067704"
+  },
+  {
+   "input": "/%C3%BC",
+   "canonical": "/%C3%BC",
+   "route_id": "a0989890-6d53-5ec1-9cfd-70fffcaf2138",
+   "route_oid": "2.25.213468802817033644959652763308299067704"
+  },
+  {
+   "input": "/%c3%bc",
+   "canonical": "/%C3%BC",
+   "route_id": "a0989890-6d53-5ec1-9cfd-70fffcaf2138",
+   "route_oid": "2.25.213468802817033644959652763308299067704"
+  },
+  {
+   "input": "/./a",
+   "canonical": "/a",
+   "route_id": "73246bf9-7b7c-5dd1-bce9-d7e7656ec2d3",
+   "route_oid": "2.25.153050332186029642017843057439078793939"
+  },
+  {
+   "input": "/a/./b",
+   "canonical": "/a/b",
+   "route_id": "4e319420-b3e2-51b5-97a3-b1709772a07d",
+   "route_oid": "2.25.103937210604885605398702727704572239997"
+  },
+  {
+   "input": "/a/../b",
+   "canonical": "/b",
+   "route_id": "10e7ecc5-00ba-5245-9d63-e88a90780bd6",
+   "route_oid": "2.25.22471870763719924973612436487834962902"
+  },
+  {
+   "input": "/a/b/../../c",
+   "canonical": "/c",
+   "route_id": "b089fcd4-64d6-5815-b5d6-5eece8d3e767",
+   "route_oid": "2.25.234660599922562665337432045275122493287"
+  },
+  {
+   "input": "/../a",
+   "canonical": "/a",
+   "route_id": "73246bf9-7b7c-5dd1-bce9-d7e7656ec2d3",
+   "route_oid": "2.25.153050332186029642017843057439078793939"
+  },
+  {
+   "input": "/a/..",
+   "canonical": "/",
+   "route_id": "7b49d5ea-b0c8-5063-ba6d-e1f2ceea738c",
+   "route_oid": "2.25.163878419899564827449165884796175020940"
+  },
+  {
+   "input": "/a/.",
+   "canonical": "/a",
+   "route_id": "73246bf9-7b7c-5dd1-bce9-d7e7656ec2d3",
+   "route_oid": "2.25.153050332186029642017843057439078793939"
+  },
+  {
+   "input": "/a/%2E%2E/b",
+   "canonical": "/b",
+   "route_id": "10e7ecc5-00ba-5245-9d63-e88a90780bd6",
+   "route_oid": "2.25.22471870763719924973612436487834962902"
+  },
+  {
+   "input": "/a/%2e/b",
+   "canonical": "/a/b",
+   "route_id": "4e319420-b3e2-51b5-97a3-b1709772a07d",
+   "route_oid": "2.25.103937210604885605398702727704572239997"
+  },
+  {
+   "input": "/a/.b/..c",
+   "canonical": "/a/.b/..c",
+   "route_id": "c7f15927-7d2b-5e36-b8bf-3c2009f57952",
+   "route_oid": "2.25.265769522967196270171107909568619182418"
+  },
+  {
+   "input": "/a//b",
+   "canonical": "/a//b",
+   "route_id": "7f7333ef-14cf-5f89-90bc-c285d6f9b3df",
+   "route_oid": "2.25.169410122948276847183969174945623815135"
+  },
+  {
+   "input": "/foo;bar=1/x",
+   "canonical": "/foo;bar=1/x",
+   "route_id": "cb80dfd1-3a2f-537e-8ae3-759c75c0f080",
+   "route_oid": "2.25.270502436696265304313551539191775555712"
+  },
+  {
+   "input": "/path:with@colon",
+   "canonical": "/path:with@colon",
+   "route_id": "3b430d3b-6865-544b-9d6b-22538725e98e",
+   "route_oid": "2.25.78772604018927246368582118245002504590"
+  },
+  {
+   "input": "/!$&'()*+,;=",
+   "canonical": "/!$&'()*+,;=",
+   "route_id": "b76b3291-1a6f-5225-9f6e-bf8fdca6bbe8",
+   "route_oid": "2.25.243805324609247767398901255552436190184"
+  },
+  {
+   "input": "/%25",
+   "canonical": "/%25",
+   "route_id": "98db7392-f29b-593a-b3cd-779b96bdfac3",
+   "route_oid": "2.25.203182112490825664209008943490228157123"
+  },
+  {
+   "input": "/%3F",
+   "canonical": "/%3F",
+   "route_id": "9420a38c-d99b-5764-8dac-ad49700791e8",
+   "route_oid": "2.25.196895214067694854227202076753850241512"
+  },
+  {
+   "input": "/%23",
+   "canonical": "/%23",
+   "route_id": "cc23dd8a-194c-552d-b379-6b665df0c267",
+   "route_oid": "2.25.271348734884009796879028839584860521063"
+  },
+  {
+   "input": "a",
+   "error": true
+  },
+  {
+   "input": "/a?b",
+   "error": true
+  },
+  {
+   "input": "/a#b",
+   "error": true
+  },
+  {
+   "input": "/%",
+   "error": true
+  },
+  {
+   "input": "/%2",
+   "error": true
+  },
+  {
+   "input": "/%zz",
+   "error": true
+  },
+  {
+   "input": "/a%g0",
+   "error": true
+  }
+ ]
+}

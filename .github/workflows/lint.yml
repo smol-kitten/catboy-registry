@@ -1,6 +1,9 @@
 name: lint
 on: [push, pull_request]
 permissions: { contents: read }
+env:
+  DOTNET_NOLOGO: "1"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
 jobs:
   lint:
     runs-on: ubuntu-latest   # public repo: never self-hosted (fork PRs would run on fleet runners)
@@ -9,7 +12,7 @@ jobs:
         with: { fetch-depth: 0 }
       - uses: actions/setup-python@v6
         with: { python-version: "3.12" }
-      - run: pip install pyyaml jsonschema asn1tools && sudo apt-get install -y -q smitools >/dev/null
+      - run: pip install pyyaml jsonschema asn1tools idna && sudo apt-get install -y -q smitools >/dev/null
       - run: python3 tools/lint.py --strict
       - run: python3 tools/immutability.py origin/main
         if: github.event_name == 'pull_request'
@@ -18,12 +21,100 @@ jobs:
           python3 tools/gen.py
           python3 tools/mibcheck.py   # fails on any smilint diagnostic; smilint's exit code is 0 even on errors
           python3 tools/asn1check.py
+      - name: lint the generated artifacts (build/, packages/)
+        run: python3 tools/lint.py --strict   # now that gen.py wrote build/, the scan covers it too
       - name: generated docs and published specs are current
         run: |
           python3 tools/gen.py
           git diff --exit-code -- docs/arcs.md specs/ || { echo "docs/arcs.md or specs/ is stale or hand-edited - run tools/gen.py and commit"; exit 1; }
           test -z "$(git status --porcelain -- specs/)" || { git status --short -- specs/; echo "gen.py produced an uncommitted spec"; exit 1; }
+      - name: test vectors are current (Python reference)
+        run: python3 tools/vectors.py --check
       - name: UUID namespace matches specs/uuid/namespace.md
         run: |
           ns=$(python3 -c 'import sys; sys.path.insert(0, "build/python"); import oid; print(oid.CATBOY_NAMESPACE)')
           grep -q "= \`$ns\`" specs/uuid/namespace.md || { echo "namespace $ns not in specs/uuid/namespace.md"; exit 1; }
+
+  gitleaks:
+    runs-on: ubuntu-latest
+    env:
+      GITLEAKS_VERSION: 8.30.1
+      GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+    steps:
+      - uses: actions/checkout@v5
+        with: { fetch-depth: 0 }   # the FULL history, not only the tip
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.12" }
+      - name: install gitleaks (pinned release, checksum verified)
+        run: |
+          curl -sSfL -o /tmp/gitleaks.tgz "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  /tmp/gitleaks.tgz" | sha256sum -c -
+          tar -xzf /tmp/gitleaks.tgz -C /tmp gitleaks
+      - name: gitleaks over every commit
+        run: /tmp/gitleaks git --redact --no-banner --exit-code 1 .
+      - name: gitleaks over the generated artifacts
+        run: |
+          pip install pyyaml idna
+          python3 tools/gen.py >/dev/null
+          mkdir -p packages
+          /tmp/gitleaks dir --redact --no-banner --exit-code 1 build packages
+
+  vectors:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        lang: [python, go, php, dotnet]
+    name: vectors (${{ matrix.lang }})
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.12" }
+      - run: pip install pyyaml idna && python3 tools/gen.py >/dev/null
+      - if: matrix.lang == 'python'
+        run: python3 tests/runners/python/run.py vectors tests/vectors
+      - if: matrix.lang == 'go'
+        uses: actions/setup-go@v6
+        with: { go-version: "1.23.x", cache: false }
+      - if: matrix.lang == 'go'
+        working-directory: tests/runners/go
+        run: |
+          gofmt -l ../../../build/go | tee /tmp/gofmt.txt; test ! -s /tmp/gofmt.txt
+          go vet . github.com/smol-kitten/catboy-registry/go
+          go run . vectors ../../vectors
+      - if: matrix.lang == 'php'
+        uses: shivammathur/setup-php@v2
+        with: { php-version: "8.3", extensions: intl, coverage: none }
+      - if: matrix.lang == 'php'
+        run: php tests/runners/php/run.php vectors tests/vectors
+      - if: matrix.lang == 'dotnet'
+        uses: actions/setup-dotnet@v5
+        with: { dotnet-version: "8.0.x" }
+      - if: matrix.lang == 'dotnet'
+        working-directory: tests/runners/dotnet
+        run: dotnet run -c Release -- vectors ../../vectors
+
+  cross-language:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.12" }
+      - uses: actions/setup-go@v6
+        with: { go-version: "1.23.x", cache: false }
+      - uses: shivammathur/setup-php@v2
+        with: { php-version: "8.3", extensions: intl, coverage: none }
+      - uses: actions/setup-dotnet@v5
+        with: { dotnet-version: "8.0.x" }
+      - run: pip install pyyaml idna && python3 tools/gen.py >/dev/null
+      - name: 1000 random domains + 1000 random paths through every language
+        run: |
+          seed="${{ github.run_id }}-${{ github.run_attempt }}"
+          echo "seed: $seed (rerun locally: python3 tools/fuzz.py gen $seed 1000)"
+          python3 tools/fuzz.py gen "$seed" 1000 > /tmp/in.json
+          python3 tests/runners/python/run.py fuzz /tmp/in.json > /tmp/out.python
+          (cd tests/runners/go && go run . fuzz /tmp/in.json) > /tmp/out.go
+          php tests/runners/php/run.php fuzz /tmp/in.json > /tmp/out.php
+          dotnet build tests/runners/dotnet -c Release -o /tmp/dn -v q >/dev/null
+          /tmp/dn/Runner fuzz /tmp/in.json > /tmp/out.dotnet
+          python3 tools/fuzz.py compare /tmp/out.python /tmp/out.go /tmp/out.php /tmp/out.dotnet
