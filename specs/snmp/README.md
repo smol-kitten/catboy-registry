@@ -7,7 +7,7 @@ Generated from `templates/snmp/*.tmpl` by `tools/gen.py`; the files here are the
 | `.1.4` | `CATBOY-SMI` (`CATBOY-SMI.txt`): enterprise root, `catboySnmp`, sysObjectID, experimental arc | published |
 | `.1.4.1` | `catboyAgentSysObjectID`: sysObjectID of every catboy-agent host (says "fleet host", not which one) | published |
 | `.1.4.2` | `CATBOY-AGENT-MIB` (`CATBOY-AGENT-MIB.txt`): enrolment id, enrol state, version, last heartbeat (= last CatCMDB sync), trust anchor, site, disk-full and backup-failed flags, managed-services table, two notifications | published |
-| `.1.4.3` | `CATBOY-PKI-MIB`: CA seal state, CRL freshness, issuer expiry, publish age, traps | reserved |
+| `.1.4.3` | `CATBOY-PKI-MIB` (`CATBOY-PKI-MIB.txt`): CA seal state, publish epoch and age, issuer table (fingerprint, certificate expiry, CRL number and seconds to nextUpdate), seal-state, CRL-stale and publish-stale notifications. Served on the CA host by catboy-pki `snmp/` | published |
 | `.1.4.4` | `CATBOY-WAF-MIB`: CatWAF site and backend health (optional) | reserved |
 | `.1.4.99` | experimental; never stable | reserved |
 

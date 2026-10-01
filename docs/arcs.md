@@ -19,7 +19,7 @@ Enterprise arc: `1.3.6.1.4.1.66963` (assignee: Marc Schneider)
 | `1.3.6.1.4.1.66963.1.4` | snmp | reserved | catboy.systems | 2026-09-23 | SMIv2 MIB root (CATBOY-AGENT-MIB) | [spec](../specs/snmp/README.md) |
 | `1.3.6.1.4.1.66963.1.4.1` | snmp-sysobjectid-agent | reserved | catboy.systems | 2026-09-23 | sysObjectID value for hosts running catboy-agent |  |
 | `1.3.6.1.4.1.66963.1.4.2` | snmp-agent-mib | reserved | catboy.systems | 2026-09-25 | CATBOY-AGENT-MIB module (catboy-agent AgentX subagent - enrolment id, health flags, managed services, traps) | [spec](../specs/snmp/CATBOY-AGENT-MIB.txt) |
-| `1.3.6.1.4.1.66963.1.4.3` | snmp-pki-mib | reserved | catboy.systems | 2026-09-25 | CATBOY-PKI-MIB module (CA seal state, CRL freshness, issuer expiry, publish age, traps) | [spec](../specs/snmp/README.md) |
+| `1.3.6.1.4.1.66963.1.4.3` | snmp-pki-mib | reserved | catboy.systems | 2026-09-25 | CATBOY-PKI-MIB module (CA seal state, CRL freshness, issuer expiry, publish age, traps) | [spec](../specs/snmp/CATBOY-PKI-MIB.txt) |
 | `1.3.6.1.4.1.66963.1.4.4` | snmp-waf-mib | reserved | catboy.systems | 2026-09-25 | CATBOY-WAF-MIB module (CatWAF site and backend health), optional | [spec](../specs/snmp/README.md) |
 | `1.3.6.1.4.1.66963.1.4.99` | snmp-experimental | reserved | catboy.systems | 2026-09-25 | experimental SNMP objects; never stable, promoted objects get a new number in a module arc | [spec](../specs/snmp/README.md) |
 | `1.3.6.1.4.1.66963.1.5` | dhcp-vendor-options | reserved | catboy.systems | 2026-09-23 | DHCPv4 option 125 / option 43 and DHCPv6 option 17 sub-option namespace | [spec](../specs/dhcp/vendor-options.yaml) |
