@@ -10,6 +10,7 @@ Generated from `templates/snmp/*.tmpl` by `tools/gen.py`; the files here are the
 | `.1.4.3` | `CATBOY-PKI-MIB` (`CATBOY-PKI-MIB.txt`): CA seal state, publish epoch and age, issuer table (fingerprint, certificate expiry, CRL number and seconds to nextUpdate), seal-state, CRL-stale and publish-stale notifications. Served on the CA host by catboy-pki `snmp/` | published |
 | `.1.4.4` | `CATBOY-WAF-MIB`: CatWAF site and backend health (optional) | reserved |
 | `.1.4.5` | `CATBOY-FLEET-MIB` (`CATBOY-FLEET-MIB.txt`): snapshot age, pawkit release/channel/build, hub epoch, seq, sync state and state age, load finding counts by severity, guest backup table (host, VMID, name, last attempt time, result, age). Served on the pawkit host by `pawkit snmp` (`snmp.py`, off by default) | published |
+| `.1.4.6` | `CATBOY-HOST-MIB` (`CATBOY-HOST-MIB.txt`): hostsec collector status table, firewall (backend, policy, rule count, gap table), apt and unattended-upgrades, running vs newest kernel, reboot-required and uptime, sysctl hardening score and deviation table, journal counts (1 h/24 h/48 h, OOM, segfaults, coredumps, taint, last crit lines), failed units, DNS probe, sshd and account checks, PSI and temperature, derived needs-reboot/needs-intervention flags with a reason table. No notifications. Served by catboy-agent as a second AgentX session | published |
 | `.1.4.99` | experimental; never stable | reserved |
 
 Layout inside every module arc: notifications `.0`, objects `.1`, conformance `.2`.
