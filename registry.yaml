@@ -119,6 +119,13 @@ arcs:
   since: '2026-09-25'
   purpose: CATBOY-WAF-MIB module (CatWAF site and backend health), optional
   spec: specs/snmp/README.md
+- oid: 1.4.5
+  name: snmp-fleet-mib
+  status: reserved
+  owner: catboy.systems
+  since: '2026-10-01'
+  purpose: CATBOY-FLEET-MIB module (guest backup table, pawkit hub state, load finding counts, pawkit release), served by pawkit
+  spec: specs/snmp/CATBOY-FLEET-MIB.txt
 - oid: 1.4.99
   name: snmp-experimental
   status: reserved
