@@ -12,7 +12,7 @@ IMPORTS
         FROM CATBOY-SMI;
 
 catboyFleetMIB MODULE-IDENTITY
-    LAST-UPDATED "202610010000Z"
+    LAST-UPDATED "202610011200Z"
     ORGANIZATION "catboy.systems"
     CONTACT-INFO "Marc Schneider, hostmaster@catboy.systems"
     DESCRIPTION  "Fleet-wide state that no single host owns: the last backup of
@@ -22,6 +22,10 @@ catboyFleetMIB MODULE-IDENTITY
                  that runs pawkit by a handler of the host's SNMP master agent,
                  from a snapshot that pawkit writes; the handler reads nothing
                  else. Read-only; SNMPv3 authPriv only."
+    REVISION     "202610011200Z"
+    DESCRIPTION  "catboyFleetGuestHost: the DESCRIPTION no longer names
+                 hypervisors; the value is the hypervisor's sysName. No change
+                 to any OID, SYNTAX or meaning."
     REVISION     "202610010000Z"
     DESCRIPTION  "Initial version (rendered from the catboy-registry template)."
     ::= { catboySnmp 5 }
@@ -187,8 +191,8 @@ catboyFleetGuestHost OBJECT-TYPE
     SYNTAX      DisplayString (SIZE (1..32))
     MAX-ACCESS  read-only
     STATUS      current
-    DESCRIPTION "The hypervisor that runs the guest, by its fleet name (for
-                 example pve, n4)."
+    DESCRIPTION "The hypervisor that runs the guest: its sysName, as the
+                 fleet's own monitoring names it."
     ::= { catboyFleetGuestEntry 2 }
 
 catboyFleetGuestVmid OBJECT-TYPE
