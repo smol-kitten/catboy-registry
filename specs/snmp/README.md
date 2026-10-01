@@ -9,7 +9,7 @@ Generated from `templates/snmp/*.tmpl` by `tools/gen.py`; the files here are the
 | `.1.4.2` | `CATBOY-AGENT-MIB` (`CATBOY-AGENT-MIB.txt`): enrolment id, enrol state, version, last heartbeat (= last CatCMDB sync), trust anchor, site, disk-full and backup-failed flags, managed-services table, two notifications | published |
 | `.1.4.3` | `CATBOY-PKI-MIB` (`CATBOY-PKI-MIB.txt`): CA seal state, publish epoch and age, issuer table (fingerprint, certificate expiry, CRL number and seconds to nextUpdate), seal-state, CRL-stale and publish-stale notifications. Served on the CA host by catboy-pki `snmp/` | published |
 | `.1.4.4` | `CATBOY-WAF-MIB`: CatWAF site and backend health (optional) | reserved |
-| `.1.4.5` | `CATBOY-FLEET-MIB` (`CATBOY-FLEET-MIB.txt`): snapshot age, pawkit release/channel/build, hub epoch, seq, sync state and state age, load finding counts by severity, guest backup table (host, VMID, name, last attempt time, result, age). Served on the pawkit host by pawkit `snmp_fleet.py` | published |
+| `.1.4.5` | `CATBOY-FLEET-MIB` (`CATBOY-FLEET-MIB.txt`): snapshot age, pawkit release/channel/build, hub epoch, seq, sync state and state age, load finding counts by severity, guest backup table (host, VMID, name, last attempt time, result, age). Served on the pawkit host by `pawkit snmp` (`snmp.py`, off by default) | published |
 | `.1.4.99` | experimental; never stable | reserved |
 
 Layout inside every module arc: notifications `.0`, objects `.1`, conformance `.2`.
