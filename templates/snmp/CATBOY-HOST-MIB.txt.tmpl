@@ -25,10 +25,12 @@ catboyHostMIB MODULE-IDENTITY
                  the last successful run and catboyHostCollState shows the
                  failure. Before the first successful run since the agent
                  started, an object holds its unknown value: 4294967295 for
-                 counts, ages, durations, scores and pressure values,
+                 counts, ages, durations, the sysctl score and pressure values,
                  -2147483648 for temperatures, zero-length for strings, the
                  unknown member for enumerations that have one, false(2) for
-                 truth values, and no rows for tables.
+                 truth values, and no rows for tables. The derived objects
+                 (catboyHostDerived) are always computed; catboyHostHealthScore
+                 has no unknown value and is 100 while no reason applies.
 
                  An age is the number of seconds from the event to the moment
                  the agent answers the request, so it grows between collector
@@ -825,7 +827,9 @@ catboyHostSshRootLogin OBJECT-TYPE
                  block, from the configuration sshd -T prints.
                  notInstalled(5) if there is no sshd on the host. Every 10
                  minutes. unknown(6) if the configuration could not be read
-                 or before the first successful run."
+                 or before the first successful run. The listen addresses of
+                 sshd are deliberately left out of this public module: they
+                 are host topology, not a definable count or flag."
     ::= { catboyHostSshd 1 }
 
 catboyHostSshPasswordAuth OBJECT-TYPE
@@ -918,7 +922,10 @@ catboyHostPsiCpuSome10 OBJECT-TYPE
                  hundredths of a percent: the share of the last 10 seconds in
                  which at least one task waited for a CPU. Every minute.
                  4294967295 while PSI is not available or before the first
-                 successful run."
+                 successful run. CPU pressure full is deliberately not
+                 exported: at system level the kernel reports it as zero
+                 (it has meaning only per cgroup), so only the some line of
+                 CPU pressure is served, and load control uses only that."
     ::= { catboyHostPressure 2 }
 
 catboyHostPsiCpuSome60 OBJECT-TYPE
@@ -1138,7 +1145,9 @@ catboyHostHealthScore OBJECT-TYPE
     STATUS      current
     DESCRIPTION "Informational health score: 100, minus 25 for each high and
                  10 for each medium reason in catboyHostReasonTable, not
-                 below 0. Never meant for paging. Every minute."
+                 below 0. It is always computable and has no unknown value:
+                 an empty reason table (also before any collector has run)
+                 gives 100. Never meant for paging. Every minute."
     ::= { catboyHostDerived 7 }
 
 catboyHostReasonCount OBJECT-TYPE
@@ -1154,47 +1163,38 @@ catboyHostReasonTable OBJECT-TYPE
     MAX-ACCESS  not-accessible
     STATUS      current
     DESCRIPTION "The reasons why catboyHostNeedsIntervention is true, one row
-                 per reason code that applies, sorted by code. At most 16
-                 rows (one per code), so the table always holds every
-                 reason. A reason from a collector that is not ok(1) is
-                 computed from that collector's last successful values.
-                 Every minute."
+                 per reason code that applies, indexed by the code, so a
+                 reason keeps its row while other reasons come and go. At
+                 most 16 rows (codes are limited to 1..16), so the table
+                 always holds every reason. A reason from a collector that
+                 is not ok(1) is computed from that collector's last
+                 successful values. Every minute."
     ::= { catboyHostDerived 9 }
 
 catboyHostReasonEntry OBJECT-TYPE
     SYNTAX      CatboyHostReasonEntry
     MAX-ACCESS  not-accessible
     STATUS      current
-    DESCRIPTION "One reason."
-    INDEX       { catboyHostReasonIndex }
+    DESCRIPTION "One reason that applies now."
+    INDEX       { catboyHostReasonCode }
     ::= { catboyHostReasonTable 1 }
 
 CatboyHostReasonEntry ::= SEQUENCE {
-    catboyHostReasonIndex    Unsigned32,
     catboyHostReasonCode     INTEGER,
     catboyHostReasonSeverity INTEGER,
     catboyHostReasonDetail   DisplayString,
     catboyHostReasonAge      Unsigned32
 }
 
-catboyHostReasonIndex OBJECT-TYPE
-    SYNTAX      Unsigned32 (1..16)
-    MAX-ACCESS  not-accessible
-    STATUS      current
-    DESCRIPTION "Row index: the position of the reason in the list sorted by
-                 code. It changes when a reason is added or removed.
-                 Consumers key on catboyHostReasonCode."
-    ::= { catboyHostReasonEntry 1 }
-
 catboyHostReasonCode OBJECT-TYPE
     SYNTAX      INTEGER { failedUnit(1), journalCrit(2), oomKill(3),
                           coredump(4), diskFull(5), securityOverdue(6),
                           firewallMissing(7), dnsFailures(8),
                           sshRootPassword(9), sysctlScoreLow(10) }
-    MAX-ACCESS  read-only
+    MAX-ACCESS  not-accessible
     STATUS      current
-    DESCRIPTION "Why intervention is needed: failedUnit(1) a unit has been
-                 failed for more than 1 hour; journalCrit(2)
+    DESCRIPTION "Row index: why intervention is needed. failedUnit(1) a unit
+                 has been failed for more than 1 hour; journalCrit(2)
                  catboyHostJournalCrit1h is greater than 0; oomKill(3)
                  catboyHostJournalOom24h is greater than 0; coredump(4) a
                  core dump was recorded in the last 24 hours; diskFull(5)
@@ -1205,8 +1205,9 @@ catboyHostReasonCode OBJECT-TYPE
                  catboyHostDnsFail15m is 5 or more; sshRootPassword(9)
                  catboyHostSshPasswordAuth is true and catboyHostSshRootLogin
                  is yes(1); sysctlScoreLow(10) catboyHostSysctlScore is below
-                 60. Codes are never reused; new codes are added at the end."
-    ::= { catboyHostReasonEntry 2 }
+                 60. Codes are never reused or renumbered; new codes are
+                 added at the end, never above 16."
+    ::= { catboyHostReasonEntry 1 }
 
 catboyHostReasonSeverity OBJECT-TYPE
     SYNTAX      INTEGER { medium(2), high(3) }
@@ -1216,7 +1217,7 @@ catboyHostReasonSeverity OBJECT-TYPE
                  catboyHostSeverity: high(3) for journalCrit, oomKill,
                  diskFull and firewallMissing; medium(2) for every other
                  code."
-    ::= { catboyHostReasonEntry 3 }
+    ::= { catboyHostReasonEntry 2 }
 
 catboyHostReasonDetail OBJECT-TYPE
     SYNTAX      DisplayString (SIZE (0..200))
@@ -1225,9 +1226,9 @@ catboyHostReasonDetail OBJECT-TYPE
     DESCRIPTION "Short detail for a human, truncated to 200 octets, for
                  example the names of the failed units or the count that
                  crossed the threshold. Diagnostic text only: consumers
-                 decide on catboyHostReasonCode. Zero-length if there is no
-                 detail."
-    ::= { catboyHostReasonEntry 4 }
+                 decide on the reason code of the row. Zero-length if there
+                 is no detail."
+    ::= { catboyHostReasonEntry 3 }
 
 catboyHostReasonAge OBJECT-TYPE
     SYNTAX      Unsigned32
@@ -1236,7 +1237,7 @@ catboyHostReasonAge OBJECT-TYPE
     STATUS      current
     DESCRIPTION "Seconds since the reason was first seen without a break,
                  from the first-seen time the agent keeps."
-    ::= { catboyHostReasonEntry 5 }
+    ::= { catboyHostReasonEntry 4 }
 
 -- Conformance
 
@@ -1341,8 +1342,8 @@ catboyHostDerivedGroup OBJECT-GROUP
               catboyHostSecPending, catboyHostSecOverdue,
               catboyHostNeedsIntervention, catboyHostSeverity,
               catboyHostHealthScore, catboyHostReasonCount,
-              catboyHostReasonCode, catboyHostReasonSeverity,
-              catboyHostReasonDetail, catboyHostReasonAge }
+              catboyHostReasonSeverity, catboyHostReasonDetail,
+              catboyHostReasonAge }
     STATUS  current
     DESCRIPTION "Derived flags, severity, health score and the reason
                  table."
