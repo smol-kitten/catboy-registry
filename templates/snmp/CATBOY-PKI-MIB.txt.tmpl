@@ -1,0 +1,231 @@
+CATBOY-PKI-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE, Unsigned32,
+    Integer32
+        FROM SNMPv2-SMI
+    DisplayString, TruthValue
+        FROM SNMPv2-TC
+    MODULE-COMPLIANCE, OBJECT-GROUP, NOTIFICATION-GROUP
+        FROM SNMPv2-CONF
+    catboySnmp
+        FROM CATBOY-SMI;
+
+catboyPkiMIB MODULE-IDENTITY
+    LAST-UPDATED "202610010000Z"
+    ORGANIZATION "catboy.systems"
+    CONTACT-INFO "Marc Schneider, hostmaster@catboy.systems"
+    DESCRIPTION  "State of the catboy.systems certificate authority, served on
+                 the CA host by a subagent of the host's SNMP master agent. The
+                 values come from the CA's own health endpoint and from the
+                 public material the publisher writes (fingerprints.json, the
+                 issuer certificates and the CRLs). No key material and no
+                 secret is ever read. Read-only; SNMPv3 authPriv only."
+    REVISION     "202610010000Z"
+    DESCRIPTION  "Initial version (rendered from the catboy-registry template)."
+    ::= { catboySnmp 3 }
+
+catboyPkiNotifications OBJECT IDENTIFIER ::= { catboyPkiMIB 0 }
+catboyPkiObjects       OBJECT IDENTIFIER ::= { catboyPkiMIB 1 }
+catboyPkiConformance   OBJECT IDENTIFIER ::= { catboyPkiMIB 2 }
+
+-- Scalars
+
+catboyPkiCaSealState OBJECT-TYPE
+    SYNTAX      INTEGER { unsealed(1), sealed(2), uninitialized(3),
+                          unreachable(4) }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "State of the online CA's secret store (OpenBao), from its
+                 health endpoint. unreachable(4) if the endpoint did not answer.
+                 Only unsealed(1) can issue certificates or rebuild CRLs. A
+                 change of value sends catboyPkiCaSealStateNotification."
+    ::= { catboyPkiObjects 1 }
+
+catboyPkiEpoch OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0|36))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The publish epoch (a UUIDv7 in its 36-character text form)
+                 from fingerprints.json. A new epoch starts after a restore of
+                 the CA; CRL numbers are only comparable within one epoch.
+                 Zero-length if fingerprints.json is missing or unreadable."
+    ::= { catboyPkiObjects 2 }
+
+catboyPkiLastPublishAge OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "seconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Seconds since the publisher last wrote fingerprints.json (its
+                 generated time). The publisher runs every 5 minutes.
+                 4294967295 if fingerprints.json is missing or unreadable. A
+                 crossing of the host's stale threshold, in either direction,
+                 sends catboyPkiPublishStaleNotification."
+    ::= { catboyPkiObjects 3 }
+
+-- Issuers
+
+catboyPkiIssuerTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF CatboyPkiIssuerEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Every issuer listed in fingerprints.json: the offline CAs
+                 (roots and the CAs they sign at a ceremony) and the online
+                 issuers in the CA's mounts."
+    ::= { catboyPkiObjects 4 }
+
+catboyPkiIssuerEntry OBJECT-TYPE
+    SYNTAX      CatboyPkiIssuerEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "One issuer."
+    INDEX       { catboyPkiIssuerIndex }
+    ::= { catboyPkiIssuerTable 1 }
+
+CatboyPkiIssuerEntry ::= SEQUENCE {
+    catboyPkiIssuerIndex                 Unsigned32,
+    catboyPkiIssuerName                  DisplayString,
+    catboyPkiIssuerMount                 DisplayString,
+    catboyPkiIssuerSha256                DisplayString,
+    catboyPkiIssuerCertSecondsToExpiry   Integer32,
+    catboyPkiIssuerCrlPresent            TruthValue,
+    catboyPkiIssuerCrlNumber             Unsigned32,
+    catboyPkiIssuerCrlSecondsToNextUpdate Integer32
+}
+
+catboyPkiIssuerIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..2147483647)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Row index: the position of the issuer name in the sorted list
+                 of names. It changes when an issuer is added or removed.
+                 Consumers key on catboyPkiIssuerName."
+    ::= { catboyPkiIssuerEntry 1 }
+
+catboyPkiIssuerName OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (1..64))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Issuer name, the key in fingerprints.json (for example r0,
+                 cb0, cs-2026)."
+    ::= { catboyPkiIssuerEntry 2 }
+
+catboyPkiIssuerMount OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (1..64))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The CA mount that holds the issuer, or offline for a CA whose
+                 key is kept off line and that signs only at a ceremony."
+    ::= { catboyPkiIssuerEntry 3 }
+
+catboyPkiIssuerSha256 OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0|64))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SHA-256 fingerprint (lowercase hex) of the issuer certificate,
+                 as published in fingerprints.json. Zero-length if not
+                 published."
+    ::= { catboyPkiIssuerEntry 4 }
+
+catboyPkiIssuerCertSecondsToExpiry OBJECT-TYPE
+    SYNTAX      Integer32
+    UNITS       "seconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Seconds until the notAfter time of the issuer certificate.
+                 Negative after it has expired. Limited to the Integer32 range.
+                 -2147483648 if the certificate could not be read."
+    ::= { catboyPkiIssuerEntry 5 }
+
+catboyPkiIssuerCrlPresent OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "true(1) if the publisher serves a full CRL for this issuer and
+                 it could be read, false(2) otherwise. If false, the two CRL
+                 columns hold no information."
+    ::= { catboyPkiIssuerEntry 6 }
+
+catboyPkiIssuerCrlNumber OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The cRLNumber extension of the served full CRL. Limited to
+                 4294967295. Within one catboyPkiEpoch it never goes down;
+                 0 if catboyPkiIssuerCrlPresent is false."
+    ::= { catboyPkiIssuerEntry 7 }
+
+catboyPkiIssuerCrlSecondsToNextUpdate OBJECT-TYPE
+    SYNTAX      Integer32
+    UNITS       "seconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Seconds until the nextUpdate time of the served full CRL.
+                 Negative once the CRL is out of date. Limited to the Integer32
+                 range; 0 if catboyPkiIssuerCrlPresent is false. A crossing of
+                 the host's stale threshold, in either direction, sends
+                 catboyPkiCrlStaleNotification."
+    ::= { catboyPkiIssuerEntry 8 }
+
+-- Notifications
+
+catboyPkiCaSealStateNotification NOTIFICATION-TYPE
+    OBJECTS     { catboyPkiCaSealState }
+    STATUS      current
+    DESCRIPTION "Sent when catboyPkiCaSealState changes value. The varbind
+                 holds the new value."
+    ::= { catboyPkiNotifications 1 }
+
+catboyPkiCrlStaleNotification NOTIFICATION-TYPE
+    OBJECTS     { catboyPkiIssuerName, catboyPkiIssuerCrlSecondsToNextUpdate }
+    STATUS      current
+    DESCRIPTION "Sent when the CRL of one issuer crosses the host's stale
+                 threshold. A value below the threshold raises the condition; a
+                 value at or above it clears it."
+    ::= { catboyPkiNotifications 2 }
+
+catboyPkiPublishStaleNotification NOTIFICATION-TYPE
+    OBJECTS     { catboyPkiLastPublishAge }
+    STATUS      current
+    DESCRIPTION "Sent when catboyPkiLastPublishAge crosses the host's stale
+                 threshold. A value above the threshold raises the condition; a
+                 value at or below it clears it."
+    ::= { catboyPkiNotifications 3 }
+
+-- Conformance
+
+catboyPkiGroups      OBJECT IDENTIFIER ::= { catboyPkiConformance 1 }
+catboyPkiCompliances OBJECT IDENTIFIER ::= { catboyPkiConformance 2 }
+
+catboyPkiGroup OBJECT-GROUP
+    OBJECTS { catboyPkiCaSealState, catboyPkiEpoch, catboyPkiLastPublishAge }
+    STATUS  current
+    DESCRIPTION "CA-wide scalars."
+    ::= { catboyPkiGroups 1 }
+
+catboyPkiIssuerGroup OBJECT-GROUP
+    OBJECTS { catboyPkiIssuerName, catboyPkiIssuerMount, catboyPkiIssuerSha256,
+              catboyPkiIssuerCertSecondsToExpiry, catboyPkiIssuerCrlPresent,
+              catboyPkiIssuerCrlNumber, catboyPkiIssuerCrlSecondsToNextUpdate }
+    STATUS  current
+    DESCRIPTION "The issuer table."
+    ::= { catboyPkiGroups 2 }
+
+catboyPkiNotificationGroup NOTIFICATION-GROUP
+    NOTIFICATIONS { catboyPkiCaSealStateNotification,
+                    catboyPkiCrlStaleNotification,
+                    catboyPkiPublishStaleNotification }
+    STATUS  current
+    DESCRIPTION "Seal-state, CRL-stale and publish-stale notifications."
+    ::= { catboyPkiGroups 3 }
+
+catboyPkiCompliance MODULE-COMPLIANCE
+    STATUS  current
+    DESCRIPTION "Compliance for the catboy.systems CA host."
+    MODULE
+        MANDATORY-GROUPS { catboyPkiGroup, catboyPkiIssuerGroup,
+                           catboyPkiNotificationGroup }
+    ::= { catboyPkiCompliances 1 }
+
+END

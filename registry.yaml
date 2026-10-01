@@ -111,7 +111,7 @@ arcs:
   owner: catboy.systems
   since: '2026-09-25'
   purpose: CATBOY-PKI-MIB module (CA seal state, CRL freshness, issuer expiry, publish age, traps)
-  spec: specs/snmp/README.md
+  spec: specs/snmp/CATBOY-PKI-MIB.txt
 - oid: 1.4.4
   name: snmp-waf-mib
   status: reserved
