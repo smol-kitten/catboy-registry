@@ -1,0 +1,265 @@
+CATBOY-FLEET-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Unsigned32, Gauge32, Counter64
+        FROM SNMPv2-SMI
+    DisplayString, DateAndTime
+        FROM SNMPv2-TC
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF
+    catboySnmp
+        FROM CATBOY-SMI;
+
+catboyFleetMIB MODULE-IDENTITY
+    LAST-UPDATED "202610010000Z"
+    ORGANIZATION "catboy.systems"
+    CONTACT-INFO "Marc Schneider, hostmaster@catboy.systems"
+    DESCRIPTION  "Fleet-wide state that no single host owns: the last backup of
+                 every guest on the fleet's hypervisors, the state of the pawkit
+                 hub, the count of open load findings, and the release of the
+                 pawkit toolkit that serves this module. Served on the host
+                 that runs pawkit by a handler of the host's SNMP master agent,
+                 from a snapshot that pawkit writes; the handler reads nothing
+                 else. Read-only; SNMPv3 authPriv only."
+    REVISION     "202610010000Z"
+    DESCRIPTION  "Initial version (rendered from the catboy-registry template)."
+    ::= { catboySnmp 5 }
+
+-- catboyFleetNotifications (0) is reserved for notifications.
+catboyFleetObjects     OBJECT IDENTIFIER ::= { catboyFleetMIB 1 }
+catboyFleetConformance OBJECT IDENTIFIER ::= { catboyFleetMIB 2 }
+
+-- Snapshot and pawkit release
+
+catboyFleetDataAge OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "seconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Seconds since pawkit wrote the snapshot that every other value
+                 in this module comes from. pawkit writes it every 5 minutes.
+                 4294967295 if the snapshot is missing or unreadable; all other
+                 values then hold their 'unknown' value."
+    ::= { catboyFleetObjects 1 }
+
+catboyFleetPawkitRelease OBJECT-TYPE
+    SYNTAX      OBJECT IDENTIFIER
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The release of the running pawkit as an OID in the pawkit
+                 software arc: 1.3.6.1.4.1.66963.1.11.3.1.<major>.<minor>.<patch>
+                 (registry specs/software). A pre-release reports its numeric
+                 part here and its kind in catboyFleetPawkitChannel. { 0 0 } if
+                 the version has no major.minor.patch."
+    ::= { catboyFleetObjects 2 }
+
+catboyFleetPawkitChannel OBJECT-TYPE
+    SYNTAX      OBJECT IDENTIFIER
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The release channel of the running pawkit as an OID in the
+                 pawkit software arc: 1.3.6.1.4.1.66963.1.11.3.2.<channel>, from
+                 the registry channel table (stable 1, beta 2, nightly 3, dev 4).
+                 { 0 0 } if unknown."
+    ::= { catboyFleetObjects 3 }
+
+catboyFleetPawkitBuild OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..20))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The build of the running pawkit: the GitHub Actions run_id of
+                 the build workflow, as decimal digits. Its registry build OID is
+                 1.3.6.1.4.1.66963.1.11.3.3.<run_id>; it is not served as an
+                 OBJECT IDENTIFIER because run_id values exceed the 32-bit
+                 sub-identifier limit of SNMP (RFC 2578, 3.5). Zero-length for a
+                 checkout that no build workflow produced."
+    ::= { catboyFleetObjects 4 }
+
+-- pawkit hub
+
+catboyFleetHubEpoch OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0|36))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The state epoch of the pawkit hub (a UUID in its 36-character
+                 text form, registry state-versioning arc 1.13). A new epoch
+                 starts after a restore; catboyFleetHubSeq is only comparable
+                 within one epoch. Zero-length if the hub does not publish an
+                 epoch or could not be read."
+    ::= { catboyFleetObjects 5 }
+
+catboyFleetHubSeq OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The state sequence number of the pawkit hub within
+                 catboyFleetHubEpoch. It never goes down within one epoch; a
+                 change of epoch is a discontinuity. 0 if the hub does not
+                 publish a sequence number or could not be read."
+    ::= { catboyFleetObjects 6 }
+
+catboyFleetHubSync OBJECT-TYPE
+    SYNTAX      INTEGER { inSync(1), behind(2), unreachable(3) }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether the hub runs the newest pawkit release tag of this
+                 host: inSync(1) yes, behind(2) it runs another one,
+                 unreachable(3) the hub did not answer."
+    ::= { catboyFleetObjects 7 }
+
+catboyFleetHubStateAge OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "seconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Seconds since the hub's synced state (wiki, tasks, bus) was
+                 last written. 4294967295 if unknown."
+    ::= { catboyFleetObjects 8 }
+
+-- Load findings
+
+catboyFleetLoadFindingsHigh OBJECT-TYPE
+    SYNTAX      Gauge32
+    UNITS       "findings"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Open high-severity findings of the fleet load and health
+                 detectors (pawkit loadwatch), excluding accepted load."
+    ::= { catboyFleetObjects 9 }
+
+catboyFleetLoadFindingsMed OBJECT-TYPE
+    SYNTAX      Gauge32
+    UNITS       "findings"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Open medium-severity findings, as catboyFleetLoadFindingsHigh."
+    ::= { catboyFleetObjects 10 }
+
+catboyFleetLoadFindingsLow OBJECT-TYPE
+    SYNTAX      Gauge32
+    UNITS       "findings"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Open low-severity findings, as catboyFleetLoadFindingsHigh."
+    ::= { catboyFleetObjects 11 }
+
+-- Guest backups
+
+catboyFleetGuestTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF CatboyFleetGuestEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Every guest of the fleet's hypervisors with a backup attempt in
+                 the last 14 days, from the hypervisors' per-guest backup logs.
+                 A guest that no backup job covers has no row."
+    ::= { catboyFleetObjects 12 }
+
+catboyFleetGuestEntry OBJECT-TYPE
+    SYNTAX      CatboyFleetGuestEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "One guest."
+    INDEX       { catboyFleetGuestIndex }
+    ::= { catboyFleetGuestTable 1 }
+
+CatboyFleetGuestEntry ::= SEQUENCE {
+    catboyFleetGuestIndex             Unsigned32,
+    catboyFleetGuestHost              DisplayString,
+    catboyFleetGuestVmid              Unsigned32,
+    catboyFleetGuestName              DisplayString,
+    catboyFleetGuestBackupLastTime    DateAndTime,
+    catboyFleetGuestBackupLastResult  INTEGER,
+    catboyFleetGuestBackupAge         Unsigned32
+}
+
+catboyFleetGuestIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..2147483647)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Row index: the position of the guest in the list sorted by
+                 hypervisor name, then guest id. It changes when a guest is
+                 added or removed. Consumers key on catboyFleetGuestHost and
+                 catboyFleetGuestVmid."
+    ::= { catboyFleetGuestEntry 1 }
+
+catboyFleetGuestHost OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (1..32))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The hypervisor that runs the guest, by its fleet name (for
+                 example pve, n4)."
+    ::= { catboyFleetGuestEntry 2 }
+
+catboyFleetGuestVmid OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..999999999)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The guest id on its hypervisor (the Proxmox VMID)."
+    ::= { catboyFleetGuestEntry 3 }
+
+catboyFleetGuestName OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..64))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The guest's name in the hypervisor configuration. Zero-length
+                 if unknown."
+    ::= { catboyFleetGuestEntry 4 }
+
+catboyFleetGuestBackupLastTime OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Time (UTC) the last backup attempt of the guest ended,
+                 successful or not. All eight octets are zero if unknown."
+    ::= { catboyFleetGuestEntry 5 }
+
+catboyFleetGuestBackupLastResult OBJECT-TYPE
+    SYNTAX      INTEGER { ok(1), failed(2), none(3), running(4) }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Result of the last backup attempt: ok(1) it finished,
+                 failed(2) it reported an error, none(3) no result could be
+                 read, running(4) an attempt is in progress."
+    ::= { catboyFleetGuestEntry 6 }
+
+catboyFleetGuestBackupAge OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "seconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Seconds since the last backup attempt ended. With
+                 catboyFleetGuestBackupLastResult ok(1) this is the age of the
+                 newest backup. 4294967295 if unknown."
+    ::= { catboyFleetGuestEntry 7 }
+
+-- Conformance
+
+catboyFleetGroups      OBJECT IDENTIFIER ::= { catboyFleetConformance 1 }
+catboyFleetCompliances OBJECT IDENTIFIER ::= { catboyFleetConformance 2 }
+
+catboyFleetGroup OBJECT-GROUP
+    OBJECTS { catboyFleetDataAge, catboyFleetPawkitRelease,
+              catboyFleetPawkitChannel, catboyFleetPawkitBuild,
+              catboyFleetHubEpoch, catboyFleetHubSeq, catboyFleetHubSync,
+              catboyFleetHubStateAge, catboyFleetLoadFindingsHigh,
+              catboyFleetLoadFindingsMed, catboyFleetLoadFindingsLow }
+    STATUS  current
+    DESCRIPTION "Snapshot age, pawkit release, hub state and load findings."
+    ::= { catboyFleetGroups 1 }
+
+catboyFleetGuestGroup OBJECT-GROUP
+    OBJECTS { catboyFleetGuestHost, catboyFleetGuestVmid, catboyFleetGuestName,
+              catboyFleetGuestBackupLastTime, catboyFleetGuestBackupLastResult,
+              catboyFleetGuestBackupAge }
+    STATUS  current
+    DESCRIPTION "The guest backup table."
+    ::= { catboyFleetGroups 2 }
+
+catboyFleetCompliance MODULE-COMPLIANCE
+    STATUS  current
+    DESCRIPTION "Compliance for the host that runs pawkit."
+    MODULE
+        MANDATORY-GROUPS { catboyFleetGroup, catboyFleetGuestGroup }
+    ::= { catboyFleetCompliances 1 }
+
+END
