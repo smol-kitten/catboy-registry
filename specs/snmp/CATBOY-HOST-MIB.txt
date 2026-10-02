@@ -12,7 +12,7 @@ IMPORTS
         FROM CATBOY-SMI;
 
 catboyHostMIB MODULE-IDENTITY
-    LAST-UPDATED "202610010000Z"
+    LAST-UPDATED "202610020000Z"
     ORGANIZATION "catboy.systems"
     CONTACT-INFO "Marc Schneider, hostmaster@catboy.systems"
     DESCRIPTION  "Security and health facts of a host running catboy-agent,
@@ -41,6 +41,15 @@ catboyHostMIB MODULE-IDENTITY
 
                  This module has no notifications: alerting is done by the
                  poller from the derived objects (catboyHostDerived)."
+    REVISION     "202610020000Z"
+    DESCRIPTION  "catboyHostSysctlScore, catboyHostSysctlDeviations,
+                 catboyHostSysctlDevEntry and catboyHostSysctlDevExpected: a
+                 running value that is stricter than the expected value
+                 complies (for example kernel.kptr_restrict 2 where 1 is
+                 expected), as the agent implements the checklist.
+                 catboyHostSysctlScore: IPv4 forwarding is also expected on
+                 hosts with a docker0 bridge, not on routing roles only. No
+                 change to any OID or SYNTAX."
     REVISION     "202610010000Z"
     DESCRIPTION  "Initial version (rendered from the catboy-registry template)."
     ::= { catboySnmp 6 }
@@ -423,16 +432,20 @@ catboyHostSysctlScore OBJECT-TYPE
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "Share of the agent's sysctl checklist whose running value
-                 equals the expected value for the host's fleet role, rounded
-                 down; 100 means no deviation. The checklist is fixed in the
+                 equals the expected value for the host's fleet role or is
+                 stricter than it, rounded down; 100 means no deviation. A
+                 stricter value complies: for example kernel.kptr_restrict 2
+                 or kernel.unprivileged_bpf_disabled 2 where 1 is expected. The checklist is fixed in the
                  agent (at most 32 keys): kernel pointer and dmesg
                  restriction, ptrace scope, unprivileged BPF and BPF JIT
                  hardening, address space randomization, protected hard
                  links, symbolic links, FIFOs and regular files, reverse path
                  filtering, ICMP redirects (accept and send), source routing,
                  martian logging and IPv4 forwarding. Expected values depend
-                 on catboyAgentFleetRole (for example IPv4 forwarding is
-                 expected on routing roles only). From /proc/sys, every 10
+                 on catboyAgentFleetRole and on the host: IPv4 forwarding is
+                 expected on routing roles and on hosts with a docker0
+                 bridge (the container engine needs it), and is expected
+                 off elsewhere. From /proc/sys, every 10
                  minutes. 4294967295 before the first successful run."
     ::= { catboyHostSysctl 1 }
 
@@ -441,9 +454,9 @@ catboyHostSysctlDeviations OBJECT-TYPE
     UNITS       "keys"
     MAX-ACCESS  read-only
     STATUS      current
-    DESCRIPTION "Number of checklist keys whose running value differs from
-                 the expected value, including keys the running kernel does
-                 not have. Every 10 minutes. 4294967295 before the first
+    DESCRIPTION "Number of checklist keys whose running value neither
+                 equals the expected value nor is stricter than it, including
+                 keys the running kernel does not have. Every 10 minutes. 4294967295 before the first
                  successful run."
     ::= { catboyHostSysctl 2 }
 
@@ -460,7 +473,8 @@ catboyHostSysctlDevEntry OBJECT-TYPE
     SYNTAX      CatboyHostSysctlDevEntry
     MAX-ACCESS  not-accessible
     STATUS      current
-    DESCRIPTION "One sysctl key whose value differs from the expected value."
+    DESCRIPTION "One sysctl key whose value neither equals the expected
+                 value nor is stricter than it."
     INDEX       { catboyHostSysctlDevIndex }
     ::= { catboyHostSysctlDevTable 1 }
 
@@ -493,7 +507,7 @@ catboyHostSysctlDevExpected OBJECT-TYPE
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "The expected value for the host's fleet role, as the decimal
-                 text sysctl prints."
+                 text sysctl prints: the least strict value that complies."
     ::= { catboyHostSysctlDevEntry 3 }
 
 catboyHostSysctlDevActual OBJECT-TYPE
