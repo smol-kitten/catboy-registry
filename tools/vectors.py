@@ -42,6 +42,17 @@ def dom_case(d):
     return {"input": d, "canonical": c, "site_id": s, "site_oid": o.oid_from_uuid(s)}
 
 
+PROFILE_EXTRA = ["/api", "/api/", "//", "/a//../b", "/a///b/", "/a/.//b", "/%2F%2F", "/a/%2F/"]
+
+
+def profile_case(site, p, profile):
+    try:
+        c = o.canonical_path(p, profile)
+    except ValueError:
+        return {"input": p, "profile": profile, "error": True}
+    return {"input": p, "profile": profile, "canonical": c, "route_id": o.route_id(site, p, profile)}
+
+
 def path_case(site, p):
     try:
         c = o.canonical_path(p)
@@ -81,8 +92,28 @@ def hlc_vectors():
             c["error"] = "drift"
         recv.append(c)
     cmp_ = [{"a": s(a), "b": s(b), "want": o.hlc_compare(a, b)} for a, b in [(E(t, 1), E(t, 2)), (E(t, 2), E(t, 2)), (E(t + 1, 0), E(t, 65535))]]
+    u1, u2 = "01928f3a-6c1e-7b3d-9a41-5f0c2e7d8b19", "01928f3a-6c1e-7b3d-9a41-5f0c2e7d8b1a"
+    d1, d2 = "01234567-8901-7234-8567-890123456788", "01234567-8901-7234-8567-890123456789"  # all digits
+    e1, e2 = "00000000-0000-7000-8000-0000000001e5", "00000000-0000-7000-8000-000000000999"  # PHP <=> reads "...1e5" as a float and gets this wrong
+    chg = []
+    for n, a, b in [
+        ("higher hlc wins over instance and change_id", (E(t, 2), 1, u1), (E(t, 1), 9, u2)),
+        ("same hlc: higher instance wins", (E(t, 2), 2, u1), (E(t, 2), 1, u2)),
+        ("same hlc and instance: higher change_id wins", (E(t, 2), 1, u2), (E(t, 2), 1, u1)),
+        ("missing instance counts as 0", (E(t, 2), None, u2), (E(t, 2), 1, u1)),
+        ("missing instance equals 0", (E(t, 2), None, u1), (E(t, 2), 0, u1)),
+        ("change_id is case-insensitive", (E(t, 2), 1, u1.upper()), (E(t, 2), 1, u1)),
+        ("all-digit change_ids differ in the last digit", (E(t, 2), 1, d1), (E(t, 2), 1, d2)),
+        ("hex that looks like a float exponent", (E(t, 2), 1, e1), (E(t, 2), 1, e2)),
+        ("identical triple", (E(t, 2), 3, u1), (E(t, 2), 3, u1)),
+    ]:
+        chg.append({"name": n, "a": {"hlc": s(a[0]), "instance": a[1], "change_id": a[2]},
+                    "b": {"hlc": s(b[0]), "instance": b[1], "change_id": b[2]},
+                    "want": o.change_compare(a[0], a[1], a[2], b[0], b[1], b[2])})
+    chg.append({"name": "invalid change_id", "a": {"hlc": s(E(t, 2)), "instance": 1, "change_id": "not-a-uuid"},
+                "b": {"hlc": s(E(t, 2)), "instance": 1, "change_id": u1}, "error": True})
     return {"description": "HLC = Unix ms << 16 | logical (specs/state/README.md); 64-bit values are decimal strings",
-            "encode": enc, "send": send, "receive": recv, "compare": cmp_}
+            "encode": enc, "send": send, "receive": recv, "compare": cmp_, "change_compare": chg}
 
 
 def main() -> int:
@@ -92,7 +123,9 @@ def main() -> int:
         "domains.json": {"description": "canonical_domain + site_id + oid_from_uuid (specs/uuid/namespace.md, algorithm D)",
                          "cases": [dom_case(d) for d in DOMAINS]},
         "paths.json": {"description": "canonical_path + route_id under the site of example.com (algorithm P)",
-                       "site_domain": SITE_DOMAIN, "site_id": site, "cases": [path_case(site, p) for p in PATHS]},
+                       "site_domain": SITE_DOMAIN, "site_id": site, "cases": [path_case(site, p) for p in PATHS],
+                       "profile_cases": [profile_case(site, p, pr) for pr in ("nginx", "nginx-nomerge") for p in PATHS + PROFILE_EXTRA]
+                                        + [profile_case(site, "/a", "apache")]},
         "uuid.json": {"description": "uuid5, entry ids and the X.667 2.25 OID form",
                       "namespace": o.CATBOY_NAMESPACE,
                       "oid_from_uuid": [{"uuid": u, "oid": o.oid_from_uuid(u)} for u in [

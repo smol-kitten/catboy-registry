@@ -15,6 +15,24 @@ Generated from `templates/snmp/*.tmpl` by `tools/gen.py`; the files here are the
 
 Layout inside every module arc: notifications `.0`, objects `.1`, conformance `.2`.
 
+## Changing a published module
+
+SMIv2 rules apply (RFC 2578, section 10): add objects, enum values and groups with a new
+`REVISION`; never renumber an object or change its `SYNTAX`. A published object never changes
+meaning, also inside the fleet and also right after the first revision: a change of meaning needs a
+new object, and the old one gets `STATUS deprecated` with its first meaning kept.
+
+### Errata
+
+- **CATBOY-HOST-MIB `202610020000Z`** changed the meaning of `catboyHostSysctlScore`,
+  `catboyHostSysctlDeviations`, `catboyHostSysctlDevEntry` and `catboyHostSysctlDevExpected` by a
+  `DESCRIPTION` edit only (a stricter value now complied; IPv4 forwarding expected with docker0).
+  Fixed in `202610070000Z`: those objects and the whole `catboyHostSysctlDevTable` have their first
+  meaning back and are deprecated. The replacements are `catboyHostSysctlV2Score`,
+  `catboyHostSysctlV2Deviations` and `catboyHostSysctlV2DevTable` (`catboyHostSysctl` 4..6), in
+  `catboyHostSysctlV2Group`, with reason code `sysctlScoreLowV2(11)` and
+  `catboyHostComplianceV2`. catboy-agent serves the V2 objects; pollers move to them.
+
 Access: SNMPv3 authPriv only, read-only views. A host is joined to its CatCMDB record by `catboyAgentEnrolmentId`, not by sysObjectID or address.
 
 Lint locally: `python3 tools/gen.py && python3 tools/mibcheck.py`.

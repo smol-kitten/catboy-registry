@@ -247,5 +247,610 @@
    "input": "/a%g0",
    "error": true
   }
+ ],
+ "profile_cases": [
+  {
+   "input": "/",
+   "profile": "nginx",
+   "canonical": "/",
+   "route_id": "7b49d5ea-b0c8-5063-ba6d-e1f2ceea738c"
+  },
+  {
+   "input": "",
+   "profile": "nginx",
+   "canonical": "/",
+   "route_id": "7b49d5ea-b0c8-5063-ba6d-e1f2ceea738c"
+  },
+  {
+   "input": "/a",
+   "profile": "nginx",
+   "canonical": "/a",
+   "route_id": "73246bf9-7b7c-5dd1-bce9-d7e7656ec2d3"
+  },
+  {
+   "input": "/a/",
+   "profile": "nginx",
+   "canonical": "/a/",
+   "route_id": "2a1c6a53-96f3-5165-a1f2-3c47c9ad3c82"
+  },
+  {
+   "input": "/a/b/",
+   "profile": "nginx",
+   "canonical": "/a/b/",
+   "route_id": "fe8d26bd-d45c-505a-bcfb-2a96202ee9a6"
+  },
+  {
+   "input": "/a//",
+   "profile": "nginx",
+   "canonical": "/a/",
+   "route_id": "2a1c6a53-96f3-5165-a1f2-3c47c9ad3c82"
+  },
+  {
+   "input": "/A/b",
+   "profile": "nginx",
+   "canonical": "/A/b",
+   "route_id": "eb18a0c4-33c3-538d-be24-df2b4d81e1b2"
+  },
+  {
+   "input": "/a/%2f",
+   "profile": "nginx",
+   "canonical": "/a/%2F",
+   "route_id": "5090937c-8ed5-5137-b69c-81fbdaf60ea5"
+  },
+  {
+   "input": "/a/%2F",
+   "profile": "nginx",
+   "canonical": "/a/%2F",
+   "route_id": "5090937c-8ed5-5137-b69c-81fbdaf60ea5"
+  },
+  {
+   "input": "/a/%2fb",
+   "profile": "nginx",
+   "canonical": "/a/%2Fb",
+   "route_id": "013d0902-4976-5aab-a421-5fb015c76d7d"
+  },
+  {
+   "input": "/%7Euser",
+   "profile": "nginx",
+   "canonical": "/~user",
+   "route_id": "18fbff7d-b8b2-5918-ba01-98a7f754b5d4"
+  },
+  {
+   "input": "/%7euser",
+   "profile": "nginx",
+   "canonical": "/~user",
+   "route_id": "18fbff7d-b8b2-5918-ba01-98a7f754b5d4"
+  },
+  {
+   "input": "/%41%42%43",
+   "profile": "nginx",
+   "canonical": "/ABC",
+   "route_id": "2621e35f-914d-5863-95c4-19c53d7169f3"
+  },
+  {
+   "input": "/a%2Db",
+   "profile": "nginx",
+   "canonical": "/a-b",
+   "route_id": "ecee4cfc-1217-50e8-840e-cff7fcc154be"
+  },
+  {
+   "input": "/a%20b",
+   "profile": "nginx",
+   "canonical": "/a%20b",
+   "route_id": "e47aa84d-c8d6-53e0-a03d-358de77a2d4a"
+  },
+  {
+   "input": "/a b",
+   "profile": "nginx",
+   "canonical": "/a%20b",
+   "route_id": "e47aa84d-c8d6-53e0-a03d-358de77a2d4a"
+  },
+  {
+   "input": "/ü",
+   "profile": "nginx",
+   "canonical": "/%C3%BC",
+   "route_id": "a0989890-6d53-5ec1-9cfd-70fffcaf2138"
+  },
+  {
+   "input": "/%C3%BC",
+   "profile": "nginx",
+   "canonical": "/%C3%BC",
+   "route_id": "a0989890-6d53-5ec1-9cfd-70fffcaf2138"
+  },
+  {
+   "input": "/%c3%bc",
+   "profile": "nginx",
+   "canonical": "/%C3%BC",
+   "route_id": "a0989890-6d53-5ec1-9cfd-70fffcaf2138"
+  },
+  {
+   "input": "/./a",
+   "profile": "nginx",
+   "canonical": "/a",
+   "route_id": "73246bf9-7b7c-5dd1-bce9-d7e7656ec2d3"
+  },
+  {
+   "input": "/a/./b",
+   "profile": "nginx",
+   "canonical": "/a/b",
+   "route_id": "4e319420-b3e2-51b5-97a3-b1709772a07d"
+  },
+  {
+   "input": "/a/../b",
+   "profile": "nginx",
+   "canonical": "/b",
+   "route_id": "10e7ecc5-00ba-5245-9d63-e88a90780bd6"
+  },
+  {
+   "input": "/a/b/../../c",
+   "profile": "nginx",
+   "canonical": "/c",
+   "route_id": "b089fcd4-64d6-5815-b5d6-5eece8d3e767"
+  },
+  {
+   "input": "/../a",
+   "profile": "nginx",
+   "canonical": "/a",
+   "route_id": "73246bf9-7b7c-5dd1-bce9-d7e7656ec2d3"
+  },
+  {
+   "input": "/a/..",
+   "profile": "nginx",
+   "canonical": "/",
+   "route_id": "7b49d5ea-b0c8-5063-ba6d-e1f2ceea738c"
+  },
+  {
+   "input": "/a/.",
+   "profile": "nginx",
+   "canonical": "/a/",
+   "route_id": "2a1c6a53-96f3-5165-a1f2-3c47c9ad3c82"
+  },
+  {
+   "input": "/a/%2E%2E/b",
+   "profile": "nginx",
+   "canonical": "/b",
+   "route_id": "10e7ecc5-00ba-5245-9d63-e88a90780bd6"
+  },
+  {
+   "input": "/a/%2e/b",
+   "profile": "nginx",
+   "canonical": "/a/b",
+   "route_id": "4e319420-b3e2-51b5-97a3-b1709772a07d"
+  },
+  {
+   "input": "/a/.b/..c",
+   "profile": "nginx",
+   "canonical": "/a/.b/..c",
+   "route_id": "c7f15927-7d2b-5e36-b8bf-3c2009f57952"
+  },
+  {
+   "input": "/a//b",
+   "profile": "nginx",
+   "canonical": "/a/b",
+   "route_id": "4e319420-b3e2-51b5-97a3-b1709772a07d"
+  },
+  {
+   "input": "/foo;bar=1/x",
+   "profile": "nginx",
+   "canonical": "/foo;bar=1/x",
+   "route_id": "cb80dfd1-3a2f-537e-8ae3-759c75c0f080"
+  },
+  {
+   "input": "/path:with@colon",
+   "profile": "nginx",
+   "canonical": "/path:with@colon",
+   "route_id": "3b430d3b-6865-544b-9d6b-22538725e98e"
+  },
+  {
+   "input": "/!$&'()*+,;=",
+   "profile": "nginx",
+   "canonical": "/!$&'()*+,;=",
+   "route_id": "b76b3291-1a6f-5225-9f6e-bf8fdca6bbe8"
+  },
+  {
+   "input": "/%25",
+   "profile": "nginx",
+   "canonical": "/%25",
+   "route_id": "98db7392-f29b-593a-b3cd-779b96bdfac3"
+  },
+  {
+   "input": "/%3F",
+   "profile": "nginx",
+   "canonical": "/%3F",
+   "route_id": "9420a38c-d99b-5764-8dac-ad49700791e8"
+  },
+  {
+   "input": "/%23",
+   "profile": "nginx",
+   "canonical": "/%23",
+   "route_id": "cc23dd8a-194c-552d-b379-6b665df0c267"
+  },
+  {
+   "input": "a",
+   "profile": "nginx",
+   "error": true
+  },
+  {
+   "input": "/a?b",
+   "profile": "nginx",
+   "error": true
+  },
+  {
+   "input": "/a#b",
+   "profile": "nginx",
+   "error": true
+  },
+  {
+   "input": "/%",
+   "profile": "nginx",
+   "error": true
+  },
+  {
+   "input": "/%2",
+   "profile": "nginx",
+   "error": true
+  },
+  {
+   "input": "/%zz",
+   "profile": "nginx",
+   "error": true
+  },
+  {
+   "input": "/a%g0",
+   "profile": "nginx",
+   "error": true
+  },
+  {
+   "input": "/api",
+   "profile": "nginx",
+   "canonical": "/api",
+   "route_id": "ba759357-d3e4-5946-b5da-add37c14d740"
+  },
+  {
+   "input": "/api/",
+   "profile": "nginx",
+   "canonical": "/api/",
+   "route_id": "2e367008-e6f2-5d59-bdf9-b17fe00e729b"
+  },
+  {
+   "input": "//",
+   "profile": "nginx",
+   "canonical": "/",
+   "route_id": "7b49d5ea-b0c8-5063-ba6d-e1f2ceea738c"
+  },
+  {
+   "input": "/a//../b",
+   "profile": "nginx",
+   "canonical": "/b",
+   "route_id": "10e7ecc5-00ba-5245-9d63-e88a90780bd6"
+  },
+  {
+   "input": "/a///b/",
+   "profile": "nginx",
+   "canonical": "/a/b/",
+   "route_id": "fe8d26bd-d45c-505a-bcfb-2a96202ee9a6"
+  },
+  {
+   "input": "/a/.//b",
+   "profile": "nginx",
+   "canonical": "/a/b",
+   "route_id": "4e319420-b3e2-51b5-97a3-b1709772a07d"
+  },
+  {
+   "input": "/%2F%2F",
+   "profile": "nginx",
+   "canonical": "/%2F%2F",
+   "route_id": "bc630a7b-133e-58b6-a17b-4fff9a8bcdb2"
+  },
+  {
+   "input": "/a/%2F/",
+   "profile": "nginx",
+   "canonical": "/a/%2F/",
+   "route_id": "4411e917-ec45-54a2-a498-51b8384a2e80"
+  },
+  {
+   "input": "/",
+   "profile": "nginx-nomerge",
+   "canonical": "/",
+   "route_id": "7b49d5ea-b0c8-5063-ba6d-e1f2ceea738c"
+  },
+  {
+   "input": "",
+   "profile": "nginx-nomerge",
+   "canonical": "/",
+   "route_id": "7b49d5ea-b0c8-5063-ba6d-e1f2ceea738c"
+  },
+  {
+   "input": "/a",
+   "profile": "nginx-nomerge",
+   "canonical": "/a",
+   "route_id": "73246bf9-7b7c-5dd1-bce9-d7e7656ec2d3"
+  },
+  {
+   "input": "/a/",
+   "profile": "nginx-nomerge",
+   "canonical": "/a/",
+   "route_id": "2a1c6a53-96f3-5165-a1f2-3c47c9ad3c82"
+  },
+  {
+   "input": "/a/b/",
+   "profile": "nginx-nomerge",
+   "canonical": "/a/b/",
+   "route_id": "fe8d26bd-d45c-505a-bcfb-2a96202ee9a6"
+  },
+  {
+   "input": "/a//",
+   "profile": "nginx-nomerge",
+   "canonical": "/a//",
+   "route_id": "8c8cc3ba-ce37-5edd-a8ca-579678d01ba3"
+  },
+  {
+   "input": "/A/b",
+   "profile": "nginx-nomerge",
+   "canonical": "/A/b",
+   "route_id": "eb18a0c4-33c3-538d-be24-df2b4d81e1b2"
+  },
+  {
+   "input": "/a/%2f",
+   "profile": "nginx-nomerge",
+   "canonical": "/a/%2F",
+   "route_id": "5090937c-8ed5-5137-b69c-81fbdaf60ea5"
+  },
+  {
+   "input": "/a/%2F",
+   "profile": "nginx-nomerge",
+   "canonical": "/a/%2F",
+   "route_id": "5090937c-8ed5-5137-b69c-81fbdaf60ea5"
+  },
+  {
+   "input": "/a/%2fb",
+   "profile": "nginx-nomerge",
+   "canonical": "/a/%2Fb",
+   "route_id": "013d0902-4976-5aab-a421-5fb015c76d7d"
+  },
+  {
+   "input": "/%7Euser",
+   "profile": "nginx-nomerge",
+   "canonical": "/~user",
+   "route_id": "18fbff7d-b8b2-5918-ba01-98a7f754b5d4"
+  },
+  {
+   "input": "/%7euser",
+   "profile": "nginx-nomerge",
+   "canonical": "/~user",
+   "route_id": "18fbff7d-b8b2-5918-ba01-98a7f754b5d4"
+  },
+  {
+   "input": "/%41%42%43",
+   "profile": "nginx-nomerge",
+   "canonical": "/ABC",
+   "route_id": "2621e35f-914d-5863-95c4-19c53d7169f3"
+  },
+  {
+   "input": "/a%2Db",
+   "profile": "nginx-nomerge",
+   "canonical": "/a-b",
+   "route_id": "ecee4cfc-1217-50e8-840e-cff7fcc154be"
+  },
+  {
+   "input": "/a%20b",
+   "profile": "nginx-nomerge",
+   "canonical": "/a%20b",
+   "route_id": "e47aa84d-c8d6-53e0-a03d-358de77a2d4a"
+  },
+  {
+   "input": "/a b",
+   "profile": "nginx-nomerge",
+   "canonical": "/a%20b",
+   "route_id": "e47aa84d-c8d6-53e0-a03d-358de77a2d4a"
+  },
+  {
+   "input": "/ü",
+   "profile": "nginx-nomerge",
+   "canonical": "/%C3%BC",
+   "route_id": "a0989890-6d53-5ec1-9cfd-70fffcaf2138"
+  },
+  {
+   "input": "/%C3%BC",
+   "profile": "nginx-nomerge",
+   "canonical": "/%C3%BC",
+   "route_id": "a0989890-6d53-5ec1-9cfd-70fffcaf2138"
+  },
+  {
+   "input": "/%c3%bc",
+   "profile": "nginx-nomerge",
+   "canonical": "/%C3%BC",
+   "route_id": "a0989890-6d53-5ec1-9cfd-70fffcaf2138"
+  },
+  {
+   "input": "/./a",
+   "profile": "nginx-nomerge",
+   "canonical": "/a",
+   "route_id": "73246bf9-7b7c-5dd1-bce9-d7e7656ec2d3"
+  },
+  {
+   "input": "/a/./b",
+   "profile": "nginx-nomerge",
+   "canonical": "/a/b",
+   "route_id": "4e319420-b3e2-51b5-97a3-b1709772a07d"
+  },
+  {
+   "input": "/a/../b",
+   "profile": "nginx-nomerge",
+   "canonical": "/b",
+   "route_id": "10e7ecc5-00ba-5245-9d63-e88a90780bd6"
+  },
+  {
+   "input": "/a/b/../../c",
+   "profile": "nginx-nomerge",
+   "canonical": "/c",
+   "route_id": "b089fcd4-64d6-5815-b5d6-5eece8d3e767"
+  },
+  {
+   "input": "/../a",
+   "profile": "nginx-nomerge",
+   "canonical": "/a",
+   "route_id": "73246bf9-7b7c-5dd1-bce9-d7e7656ec2d3"
+  },
+  {
+   "input": "/a/..",
+   "profile": "nginx-nomerge",
+   "canonical": "/",
+   "route_id": "7b49d5ea-b0c8-5063-ba6d-e1f2ceea738c"
+  },
+  {
+   "input": "/a/.",
+   "profile": "nginx-nomerge",
+   "canonical": "/a/",
+   "route_id": "2a1c6a53-96f3-5165-a1f2-3c47c9ad3c82"
+  },
+  {
+   "input": "/a/%2E%2E/b",
+   "profile": "nginx-nomerge",
+   "canonical": "/b",
+   "route_id": "10e7ecc5-00ba-5245-9d63-e88a90780bd6"
+  },
+  {
+   "input": "/a/%2e/b",
+   "profile": "nginx-nomerge",
+   "canonical": "/a/b",
+   "route_id": "4e319420-b3e2-51b5-97a3-b1709772a07d"
+  },
+  {
+   "input": "/a/.b/..c",
+   "profile": "nginx-nomerge",
+   "canonical": "/a/.b/..c",
+   "route_id": "c7f15927-7d2b-5e36-b8bf-3c2009f57952"
+  },
+  {
+   "input": "/a//b",
+   "profile": "nginx-nomerge",
+   "canonical": "/a//b",
+   "route_id": "7f7333ef-14cf-5f89-90bc-c285d6f9b3df"
+  },
+  {
+   "input": "/foo;bar=1/x",
+   "profile": "nginx-nomerge",
+   "canonical": "/foo;bar=1/x",
+   "route_id": "cb80dfd1-3a2f-537e-8ae3-759c75c0f080"
+  },
+  {
+   "input": "/path:with@colon",
+   "profile": "nginx-nomerge",
+   "canonical": "/path:with@colon",
+   "route_id": "3b430d3b-6865-544b-9d6b-22538725e98e"
+  },
+  {
+   "input": "/!$&'()*+,;=",
+   "profile": "nginx-nomerge",
+   "canonical": "/!$&'()*+,;=",
+   "route_id": "b76b3291-1a6f-5225-9f6e-bf8fdca6bbe8"
+  },
+  {
+   "input": "/%25",
+   "profile": "nginx-nomerge",
+   "canonical": "/%25",
+   "route_id": "98db7392-f29b-593a-b3cd-779b96bdfac3"
+  },
+  {
+   "input": "/%3F",
+   "profile": "nginx-nomerge",
+   "canonical": "/%3F",
+   "route_id": "9420a38c-d99b-5764-8dac-ad49700791e8"
+  },
+  {
+   "input": "/%23",
+   "profile": "nginx-nomerge",
+   "canonical": "/%23",
+   "route_id": "cc23dd8a-194c-552d-b379-6b665df0c267"
+  },
+  {
+   "input": "a",
+   "profile": "nginx-nomerge",
+   "error": true
+  },
+  {
+   "input": "/a?b",
+   "profile": "nginx-nomerge",
+   "error": true
+  },
+  {
+   "input": "/a#b",
+   "profile": "nginx-nomerge",
+   "error": true
+  },
+  {
+   "input": "/%",
+   "profile": "nginx-nomerge",
+   "error": true
+  },
+  {
+   "input": "/%2",
+   "profile": "nginx-nomerge",
+   "error": true
+  },
+  {
+   "input": "/%zz",
+   "profile": "nginx-nomerge",
+   "error": true
+  },
+  {
+   "input": "/a%g0",
+   "profile": "nginx-nomerge",
+   "error": true
+  },
+  {
+   "input": "/api",
+   "profile": "nginx-nomerge",
+   "canonical": "/api",
+   "route_id": "ba759357-d3e4-5946-b5da-add37c14d740"
+  },
+  {
+   "input": "/api/",
+   "profile": "nginx-nomerge",
+   "canonical": "/api/",
+   "route_id": "2e367008-e6f2-5d59-bdf9-b17fe00e729b"
+  },
+  {
+   "input": "//",
+   "profile": "nginx-nomerge",
+   "canonical": "//",
+   "route_id": "36dd3549-294c-5aae-b198-ba7a74b56420"
+  },
+  {
+   "input": "/a//../b",
+   "profile": "nginx-nomerge",
+   "canonical": "/a/b",
+   "route_id": "4e319420-b3e2-51b5-97a3-b1709772a07d"
+  },
+  {
+   "input": "/a///b/",
+   "profile": "nginx-nomerge",
+   "canonical": "/a///b/",
+   "route_id": "e8f9fc82-92ae-54ce-b95f-66a73040770e"
+  },
+  {
+   "input": "/a/.//b",
+   "profile": "nginx-nomerge",
+   "canonical": "/a//b",
+   "route_id": "7f7333ef-14cf-5f89-90bc-c285d6f9b3df"
+  },
+  {
+   "input": "/%2F%2F",
+   "profile": "nginx-nomerge",
+   "canonical": "/%2F%2F",
+   "route_id": "bc630a7b-133e-58b6-a17b-4fff9a8bcdb2"
+  },
+  {
+   "input": "/a/%2F/",
+   "profile": "nginx-nomerge",
+   "canonical": "/a/%2F/",
+   "route_id": "4411e917-ec45-54a2-a498-51b8384a2e80"
+  },
+  {
+   "input": "/a",
+   "profile": "apache",
+   "error": true
+  }
  ]
 }

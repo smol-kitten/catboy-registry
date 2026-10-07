@@ -90,8 +90,14 @@ def _remove_dot_segments(path: str) -> str:
     return "/" + "/".join(out)
 
 
-def canonical_path(path: str) -> str:
-    """specs/uuid/namespace.md, algorithm P. Raises ValueError on an invalid path."""
+PATH_PROFILES = ("default", "nginx", "nginx-nomerge")
+
+
+def canonical_path(path: str, profile: str = "default") -> str:
+    """specs/uuid/namespace.md, algorithm P with a product profile. Raises ValueError on an
+    invalid path or an unknown profile."""
+    if profile not in PATH_PROFILES:
+        raise ValueError(f"unknown path profile {profile!r}")
     if path == "":  # P1
         return "/"
     if not path.startswith("/"):
@@ -119,8 +125,14 @@ def canonical_path(path: str) -> str:
         else:
             out.append("%%%02X" % c)
             i += 1
-    p = _remove_dot_segments("".join(out))  # P5
-    return p.rstrip("/") or "/"  # P6
+    s = "".join(out)
+    if profile == "nginx":  # merge_slashes on: runs of '/' become one, before P5 (as nginx parses)
+        while "//" in s:
+            s = s.replace("//", "/")
+    p = _remove_dot_segments(s)  # P5
+    if profile == "default":
+        return p.rstrip("/") or "/"  # P6
+    return p or "/"  # nginx profiles: a trailing '/' is significant
 
 
 def site_id(domain: str) -> str:
@@ -128,9 +140,9 @@ def site_id(domain: str) -> str:
     return str(_uuid.uuid5(_NS, "catwaf-site:" + canonical_domain(domain)))
 
 
-def route_id(site: str, path: str) -> str:
+def route_id(site: str, path: str, profile: str = "default") -> str:
     """uuid5(site id, "route:" + canonical path)."""
-    return str(_uuid.uuid5(_uuid.UUID(site), "route:" + canonical_path(path)))
+    return str(_uuid.uuid5(_uuid.UUID(site), "route:" + canonical_path(path, profile)))
 
 
 def entry_id(kind: str, key: str) -> str:
@@ -176,6 +188,13 @@ def hlc_receive(last: int, remote: int, now_ms: int, max_drift_ms: int = HLC_MAX
         raise HlcDriftError(f"remote hlc is {(remote >> 16) - now_ms} ms ahead")
     return max(hlc_encode(now_ms, 0), last + 1, remote + 1)
 
+
+def change_compare(a_hlc: int, a_instance, a_change_id: str, b_hlc: int, b_instance, b_change_id: str) -> int:
+    """Order of two changes (specs/state/README.md 3.3): the triple (hlc, instance, change_id).
+    A missing instance (None) counts as 0. change_id compares as an unsigned 128-bit integer."""
+    a = (a_hlc, a_instance or 0, _uuid.UUID(a_change_id).int)
+    b = (b_hlc, b_instance or 0, _uuid.UUID(b_change_id).int)
+    return (a > b) - (a < b)
 
 def state_root(entries) -> str:
     """sha256 over the sorted "id:rev:content_hash\\n" lines (specs/state/README.md)."""

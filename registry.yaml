@@ -94,20 +94,20 @@ arcs:
   spec: specs/snmp/README.md
 - oid: 1.4.1
   name: snmp-sysobjectid-agent
-  status: reserved
+  status: active
   owner: catboy.systems
   since: '2026-09-23'
   purpose: sysObjectID value for hosts running catboy-agent
 - oid: 1.4.2
   name: snmp-agent-mib
-  status: reserved
+  status: active
   owner: catboy.systems
   since: '2026-09-25'
   purpose: CATBOY-AGENT-MIB module (catboy-agent AgentX subagent - enrolment id, health flags, managed services, traps)
   spec: specs/snmp/CATBOY-AGENT-MIB.txt
 - oid: 1.4.3
   name: snmp-pki-mib
-  status: reserved
+  status: active
   owner: catboy.systems
   since: '2026-09-25'
   purpose: CATBOY-PKI-MIB module (CA seal state, CRL freshness, issuer expiry, publish age, traps)
@@ -121,14 +121,14 @@ arcs:
   spec: specs/snmp/README.md
 - oid: 1.4.5
   name: snmp-fleet-mib
-  status: reserved
+  status: active
   owner: catboy.systems
   since: '2026-10-01'
   purpose: CATBOY-FLEET-MIB module (guest backup table, pawkit hub state, load finding counts, pawkit release), served by pawkit
   spec: specs/snmp/CATBOY-FLEET-MIB.txt
 - oid: 1.4.6
   name: snmp-host-mib
-  status: reserved
+  status: active
   owner: catboy.systems
   since: '2026-10-01'
   purpose: CATBOY-HOST-MIB module (hostsec collector status, firewall, apt and unattended-upgrades, reboot, sysctl, journal, failed units, DNS, sshd and accounts, PSI and temperature, derived intervention flags with reasons), served by catboy-agent

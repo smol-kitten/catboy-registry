@@ -103,8 +103,14 @@ final class Ids
     }
 
     /** specs/uuid/namespace.md, algorithm P. Throws \InvalidArgumentException on invalid input. */
-    public static function canonicalPath(string $path): string
+    public const PATH_PROFILES = ['default', 'nginx', 'nginx-nomerge'];
+
+    /** Algorithm P with a product profile: default, nginx (merge_slashes on, trailing '/' significant), nginx-nomerge. */
+    public static function canonicalPath(string $path, string $profile = 'default'): string
     {
+        if (!in_array($profile, self::PATH_PROFILES, true)) {
+            throw new \InvalidArgumentException("unknown path profile $profile");
+        }
         if ($path === '') {
             return '/';
         }
@@ -137,7 +143,13 @@ final class Ids
                 $i++;
             }
         }
-        $p = rtrim(self::removeDotSegments($b), '/');
+        if ($profile === 'nginx') { // merge_slashes on: runs of '/' become one, before P5
+            $b = preg_replace('#/{2,}#', '/', $b);
+        }
+        $p = self::removeDotSegments($b);
+        if ($profile === 'default') {
+            $p = rtrim($p, '/');
+        }
         return $p === '' ? '/' : $p;
     }
 
@@ -168,9 +180,9 @@ final class Ids
     }
 
     /** uuid5(site id, "route:" + canonical path). */
-    public static function routeId(string $siteId, string $path): string
+    public static function routeId(string $siteId, string $path, string $profile = 'default'): string
     {
-        return self::uuid5($siteId, 'route:' . self::canonicalPath($path));
+        return self::uuid5($siteId, 'route:' . self::canonicalPath($path, $profile));
     }
 
     /** uuid5(CATBOY_NAMESPACE, "<kind>:<key>"). */

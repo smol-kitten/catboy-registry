@@ -60,6 +60,16 @@ function vectors(string $dir): int
         $check("route_id '$in'", Ids::routeId($p['site_id'], $in), $c['route_id']);
         $check("route_oid '$in'", Ids::oidFromUuid($c['route_id']), $c['route_oid']);
     }
+    foreach ($p['profile_cases'] as $c) {
+        [$in, $pr] = [$c['input'], $c['profile']];
+        $got = orErr(fn () => Ids::canonicalPath($in, $pr));
+        if (!empty($c['error'])) {
+            $check("path[$pr] '$in'", $got, 'ERR');
+            continue;
+        }
+        $check("path[$pr] '$in'", $got, $c['canonical']);
+        $check("route_id[$pr] '$in'", Ids::routeId($p['site_id'], $in, $pr), $c['route_id']);
+    }
     $u = load($dir, 'uuid.json');
     $check('namespace', Oid::CATBOY_NAMESPACE, $u['namespace']);
     foreach ($u['oid_from_uuid'] as $c) {
@@ -104,6 +114,15 @@ function vectors(string $dir): int
     foreach ($h['compare'] as $c) {
         $check("hlc_compare {$c['a']},{$c['b']}", Hlc::compare((int) $c['a'], (int) $c['b']), $c['want']);
     }
+    foreach ($h['change_compare'] as $c) {
+        [$a, $b] = [$c['a'], $c['b']];
+        try {
+            $got = Hlc::compareChange((int) $a['hlc'], $a['instance'], $a['change_id'], (int) $b['hlc'], $b['instance'], $b['change_id']);
+        } catch (\InvalidArgumentException) {
+            $got = 'ERR';
+        }
+        $check("change_compare {$c['name']}", $got, !empty($c['error']) ? 'ERR' : $c['want']);
+    }
     foreach ($fails as $f) {
         echo "FAIL $f\n";
     }
@@ -130,6 +149,13 @@ function fuzz(string $file): int
             $out .= "P\t" . Ids::canonicalPath($p) . "\t$r\t" . Ids::oidFromUuid($r) . "\n";
         } catch (\InvalidArgumentException) {
             $out .= "P\tERR\t-\t-\n";
+        }
+        foreach (['N' => 'nginx', 'M' => 'nginx-nomerge'] as $tag => $pr) {
+            try {
+                $out .= "$tag\t" . Ids::canonicalPath($p, $pr) . "\t" . Ids::routeId($site, $p, $pr) . "\n";
+            } catch (\InvalidArgumentException) {
+                $out .= "$tag\tERR\t-\n";
+            }
         }
     }
     echo $out;

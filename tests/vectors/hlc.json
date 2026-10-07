@@ -180,5 +180,147 @@
    "b": "117309440000065535",
    "want": 1
   }
+ ],
+ "change_compare": [
+  {
+   "name": "higher hlc wins over instance and change_id",
+   "a": {
+    "hlc": "117309440000000002",
+    "instance": 1,
+    "change_id": "01928f3a-6c1e-7b3d-9a41-5f0c2e7d8b19"
+   },
+   "b": {
+    "hlc": "117309440000000001",
+    "instance": 9,
+    "change_id": "01928f3a-6c1e-7b3d-9a41-5f0c2e7d8b1a"
+   },
+   "want": 1
+  },
+  {
+   "name": "same hlc: higher instance wins",
+   "a": {
+    "hlc": "117309440000000002",
+    "instance": 2,
+    "change_id": "01928f3a-6c1e-7b3d-9a41-5f0c2e7d8b19"
+   },
+   "b": {
+    "hlc": "117309440000000002",
+    "instance": 1,
+    "change_id": "01928f3a-6c1e-7b3d-9a41-5f0c2e7d8b1a"
+   },
+   "want": 1
+  },
+  {
+   "name": "same hlc and instance: higher change_id wins",
+   "a": {
+    "hlc": "117309440000000002",
+    "instance": 1,
+    "change_id": "01928f3a-6c1e-7b3d-9a41-5f0c2e7d8b1a"
+   },
+   "b": {
+    "hlc": "117309440000000002",
+    "instance": 1,
+    "change_id": "01928f3a-6c1e-7b3d-9a41-5f0c2e7d8b19"
+   },
+   "want": 1
+  },
+  {
+   "name": "missing instance counts as 0",
+   "a": {
+    "hlc": "117309440000000002",
+    "instance": null,
+    "change_id": "01928f3a-6c1e-7b3d-9a41-5f0c2e7d8b1a"
+   },
+   "b": {
+    "hlc": "117309440000000002",
+    "instance": 1,
+    "change_id": "01928f3a-6c1e-7b3d-9a41-5f0c2e7d8b19"
+   },
+   "want": -1
+  },
+  {
+   "name": "missing instance equals 0",
+   "a": {
+    "hlc": "117309440000000002",
+    "instance": null,
+    "change_id": "01928f3a-6c1e-7b3d-9a41-5f0c2e7d8b19"
+   },
+   "b": {
+    "hlc": "117309440000000002",
+    "instance": 0,
+    "change_id": "01928f3a-6c1e-7b3d-9a41-5f0c2e7d8b19"
+   },
+   "want": 0
+  },
+  {
+   "name": "change_id is case-insensitive",
+   "a": {
+    "hlc": "117309440000000002",
+    "instance": 1,
+    "change_id": "01928F3A-6C1E-7B3D-9A41-5F0C2E7D8B19"
+   },
+   "b": {
+    "hlc": "117309440000000002",
+    "instance": 1,
+    "change_id": "01928f3a-6c1e-7b3d-9a41-5f0c2e7d8b19"
+   },
+   "want": 0
+  },
+  {
+   "name": "all-digit change_ids differ in the last digit",
+   "a": {
+    "hlc": "117309440000000002",
+    "instance": 1,
+    "change_id": "01234567-8901-7234-8567-890123456788"
+   },
+   "b": {
+    "hlc": "117309440000000002",
+    "instance": 1,
+    "change_id": "01234567-8901-7234-8567-890123456789"
+   },
+   "want": -1
+  },
+  {
+   "name": "hex that looks like a float exponent",
+   "a": {
+    "hlc": "117309440000000002",
+    "instance": 1,
+    "change_id": "00000000-0000-7000-8000-0000000001e5"
+   },
+   "b": {
+    "hlc": "117309440000000002",
+    "instance": 1,
+    "change_id": "00000000-0000-7000-8000-000000000999"
+   },
+   "want": -1
+  },
+  {
+   "name": "identical triple",
+   "a": {
+    "hlc": "117309440000000002",
+    "instance": 3,
+    "change_id": "01928f3a-6c1e-7b3d-9a41-5f0c2e7d8b19"
+   },
+   "b": {
+    "hlc": "117309440000000002",
+    "instance": 3,
+    "change_id": "01928f3a-6c1e-7b3d-9a41-5f0c2e7d8b19"
+   },
+   "want": 0
+  },
+  {
+   "name": "invalid change_id",
+   "a": {
+    "hlc": "117309440000000002",
+    "instance": 1,
+    "change_id": "not-a-uuid"
+   },
+   "b": {
+    "hlc": "117309440000000002",
+    "instance": 1,
+    "change_id": "01928f3a-6c1e-7b3d-9a41-5f0c2e7d8b19"
+   },
+   "error": true
+  }
  ]
 }

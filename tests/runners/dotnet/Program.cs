@@ -51,6 +51,14 @@ static class Program
             Check($"route_id '{input}'", Ids.RouteId(S(p, "site_id"), input), S(c, "route_id"));
             Check($"route_oid '{input}'", Ids.OidFromUuid(S(c, "route_id")), S(c, "route_oid"));
         }
+        foreach (var c in p.GetProperty("profile_cases").EnumerateArray())
+        {
+            string input = S(c, "input"), pr = S(c, "profile");
+            var got = OrErr(() => Ids.CanonicalPath(input, pr));
+            if (Err(c)) { Check($"path[{pr}] '{input}'", got, "ERR"); continue; }
+            Check($"path[{pr}] '{input}'", got, S(c, "canonical"));
+            Check($"route_id[{pr}] '{input}'", Ids.RouteId(S(p, "site_id"), input, pr), S(c, "route_id"));
+        }
         var u = Load(dir, "uuid.json");
         Check("namespace", Oid.CatboyNamespace, S(u, "namespace"));
         foreach (var c in u.GetProperty("oid_from_uuid").EnumerateArray()) Check($"oid_from_uuid {S(c, "uuid")}", Ids.OidFromUuid(S(c, "uuid")), S(c, "oid"));
@@ -102,6 +110,15 @@ static class Program
             Check($"hlc_receive {S(c, "name")}", got, Err(c) ? S(c, "error") : S(c, "want"));
         }
         foreach (var c in h.GetProperty("compare").EnumerateArray()) Check($"hlc_compare {S(c, "a")},{S(c, "b")}", Hlc.Compare(U(c, "a"), U(c, "b")), c.GetProperty("want").GetInt32());
+        foreach (var c in h.GetProperty("change_compare").EnumerateArray())
+        {
+            JsonElement a = c.GetProperty("a"), b = c.GetProperty("b");
+            ulong? I(JsonElement e) => e.GetProperty("instance").ValueKind == JsonValueKind.Null ? null : e.GetProperty("instance").GetUInt64();
+            string got;
+            try { got = Hlc.CompareChange(U(a, "hlc"), I(a), S(a, "change_id"), U(b, "hlc"), I(b), S(b, "change_id")).ToString(); }
+            catch (ArgumentException) { got = "ERR"; }
+            Check($"change_compare {S(c, "name")}", got, Err(c) ? "ERR" : c.GetProperty("want").GetInt32().ToString());
+        }
         foreach (var f in Fails) Console.WriteLine("FAIL " + f);
         Console.WriteLine($"dotnet: {n - Fails.Count}/{n} vector checks passed");
         return Fails.Count > 0 ? 1 : 0;
@@ -123,6 +140,15 @@ static class Program
             var p = e.GetString()!;
             try { var r = Ids.RouteId(site, p); sb.Append($"P\t{Ids.CanonicalPath(p)}\t{r}\t{Ids.OidFromUuid(r)}\n"); }
             catch (ArgumentException) { sb.Append("P\tERR\t-\t-\n"); }
+            foreach (var (tag, pr) in new[] { ("N", "nginx"), ("M", "nginx-nomerge") })
+            {
+                // compute first: sb.Append($"...") writes each piece as it is evaluated, so a throw
+                // inside the braces would leave a partial line in the builder
+                string line;
+                try { var c = Ids.CanonicalPath(p, pr); line = $"{tag}\t{c}\t{Ids.RouteId(site, p, pr)}\n"; }
+                catch (ArgumentException) { line = $"{tag}\tERR\t-\n"; }
+                sb.Append(line);
+            }
         }
         Console.Out.Write(sb.ToString());
         return 0;

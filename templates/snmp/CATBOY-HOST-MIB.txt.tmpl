@@ -11,7 +11,7 @@ IMPORTS
         FROM CATBOY-SMI;
 
 catboyHostMIB MODULE-IDENTITY
-    LAST-UPDATED "202610020000Z"
+    LAST-UPDATED "202610070000Z"
     ORGANIZATION "catboy.systems"
     CONTACT-INFO "Marc Schneider, hostmaster@catboy.systems"
     DESCRIPTION  "Security and health facts of a host running catboy-agent,
@@ -40,6 +40,19 @@ catboyHostMIB MODULE-IDENTITY
 
                  This module has no notifications: alerting is done by the
                  poller from the derived objects (catboyHostDerived)."
+    REVISION     "202610070000Z"
+    DESCRIPTION  "Published objects never change meaning. The 202610020000Z
+                 description changes of catboyHostSysctlScore,
+                 catboyHostSysctlDeviations, catboyHostSysctlDevEntry and
+                 catboyHostSysctlDevExpected are reverted: those objects
+                 and the whole catboyHostSysctlDevTable keep their first
+                 meaning and are deprecated. Their replacements, with the
+                 equal-or-stricter rule and the docker0 forwarding rule,
+                 are catboyHostSysctlV2Score, catboyHostSysctlV2Deviations
+                 and catboyHostSysctlV2DevTable (catboyHostSysctl 4..6).
+                 New reason code sysctlScoreLowV2(11). catboyHostSysctlGroup
+                 and catboyHostCompliance are deprecated; new
+                 catboyHostSysctlV2Group and catboyHostComplianceV2."
     REVISION     "202610020000Z"
     DESCRIPTION  "catboyHostSysctlScore, catboyHostSysctlDeviations,
                  catboyHostSysctlDevEntry and catboyHostSysctlDevExpected: a
@@ -424,8 +437,114 @@ catboyHostUptime OBJECT-TYPE
     ::= { catboyHostReboot 3 }
 
 -- sysctl hardening (collector 4, every 10 minutes)
+-- .1-.3: first revision, DEPRECATED (meaning kept as published); .4-.6: the V2 replacements.
 
 catboyHostSysctlScore OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..100 | 4294967295)
+    UNITS       "percent"
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "Deprecated in 202610070000Z: replaced by
+                 catboyHostSysctlV2Score, which counts a stricter value as
+                 compliant. Original meaning: Share of the agent's sysctl checklist whose running value
+                 equals the expected value for the host's fleet role, rounded
+                 down; 100 means no deviation. The checklist is fixed in the
+                 agent (at most 32 keys): kernel pointer and dmesg
+                 restriction, ptrace scope, unprivileged BPF and BPF JIT
+                 hardening, address space randomization, protected hard
+                 links, symbolic links, FIFOs and regular files, reverse path
+                 filtering, ICMP redirects (accept and send), source routing,
+                 martian logging and IPv4 forwarding. Expected values depend
+                 on catboyAgentFleetRole (for example IPv4 forwarding is
+                 expected on routing roles only). From /proc/sys, every 10
+                 minutes. 4294967295 before the first successful run."
+    ::= { catboyHostSysctl 1 }
+
+catboyHostSysctlDeviations OBJECT-TYPE
+    SYNTAX      Gauge32
+    UNITS       "keys"
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "Deprecated in 202610070000Z: replaced by
+                 catboyHostSysctlV2Deviations, which counts a stricter value as
+                 compliant. Original meaning: Number of checklist keys whose running value differs from
+                 the expected value, including keys the running kernel does
+                 not have. Every 10 minutes. 4294967295 before the first
+                 successful run."
+    ::= { catboyHostSysctl 2 }
+
+catboyHostSysctlDevTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF CatboyHostSysctlDevEntry
+    MAX-ACCESS  not-accessible
+    STATUS      deprecated
+    DESCRIPTION "Deprecated in 202610070000Z: replaced by
+                 catboyHostSysctlV2DevTable, which counts a stricter value as
+                 compliant. Original meaning: The keys counted in catboyHostSysctlDeviations, sorted by
+                 key. At most 32 rows (the checklist size limit), so the table
+                 always holds every deviation."
+    ::= { catboyHostSysctl 3 }
+
+catboyHostSysctlDevEntry OBJECT-TYPE
+    SYNTAX      CatboyHostSysctlDevEntry
+    MAX-ACCESS  not-accessible
+    STATUS      deprecated
+    DESCRIPTION "Deprecated in 202610070000Z: replaced by
+                 catboyHostSysctlV2DevEntry, which counts a stricter value as
+                 compliant. Original meaning: One sysctl key whose value differs from the expected value."
+    INDEX       { catboyHostSysctlDevIndex }
+    ::= { catboyHostSysctlDevTable 1 }
+
+CatboyHostSysctlDevEntry ::= SEQUENCE {
+    catboyHostSysctlDevIndex    Unsigned32,
+    catboyHostSysctlDevKey      DisplayString,
+    catboyHostSysctlDevExpected DisplayString,
+    catboyHostSysctlDevActual   DisplayString
+}
+
+catboyHostSysctlDevIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..32)
+    MAX-ACCESS  not-accessible
+    STATUS      deprecated
+    DESCRIPTION "Deprecated in 202610070000Z: replaced by
+                 catboyHostSysctlV2DevIndex, which counts a stricter value as
+                 compliant. Original meaning: Row index: the position of the key in the sorted list. It
+                 changes when a deviation is added or removed. Consumers key
+                 on catboyHostSysctlDevKey."
+    ::= { catboyHostSysctlDevEntry 1 }
+
+catboyHostSysctlDevKey OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (1..64))
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "Deprecated in 202610070000Z: replaced by
+                 catboyHostSysctlV2DevKey, which counts a stricter value as
+                 compliant. Original meaning: The sysctl key in dotted form (for example
+                 kernel.kptr_restrict)."
+    ::= { catboyHostSysctlDevEntry 2 }
+
+catboyHostSysctlDevExpected OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (1..32))
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "Deprecated in 202610070000Z: replaced by
+                 catboyHostSysctlV2DevExpected, which counts a stricter value as
+                 compliant. Original meaning: The expected value for the host's fleet role, as the decimal
+                 text sysctl prints."
+    ::= { catboyHostSysctlDevEntry 3 }
+
+catboyHostSysctlDevActual OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..32))
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "Deprecated in 202610070000Z: replaced by
+                 catboyHostSysctlV2DevActual, which counts a stricter value as
+                 compliant. Original meaning: The running value as the text sysctl prints, with runs of
+                 white space collapsed to one space. Zero-length if the
+                 running kernel does not have the key."
+    ::= { catboyHostSysctlDevEntry 4 }
+
+
+catboyHostSysctlV2Score OBJECT-TYPE
     SYNTAX      Unsigned32 (0..100 | 4294967295)
     UNITS       "percent"
     MAX-ACCESS  read-only
@@ -446,9 +565,9 @@ catboyHostSysctlScore OBJECT-TYPE
                  bridge (the container engine needs it), and is expected
                  off elsewhere. From /proc/sys, every 10
                  minutes. 4294967295 before the first successful run."
-    ::= { catboyHostSysctl 1 }
+    ::= { catboyHostSysctl 4 }
 
-catboyHostSysctlDeviations OBJECT-TYPE
+catboyHostSysctlV2Deviations OBJECT-TYPE
     SYNTAX      Gauge32
     UNITS       "keys"
     MAX-ACCESS  read-only
@@ -457,66 +576,66 @@ catboyHostSysctlDeviations OBJECT-TYPE
                  equals the expected value nor is stricter than it, including
                  keys the running kernel does not have. Every 10 minutes. 4294967295 before the first
                  successful run."
-    ::= { catboyHostSysctl 2 }
+    ::= { catboyHostSysctl 5 }
 
-catboyHostSysctlDevTable OBJECT-TYPE
-    SYNTAX      SEQUENCE OF CatboyHostSysctlDevEntry
+catboyHostSysctlV2DevTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF CatboyHostSysctlV2DevEntry
     MAX-ACCESS  not-accessible
     STATUS      current
-    DESCRIPTION "The keys counted in catboyHostSysctlDeviations, sorted by
+    DESCRIPTION "The keys counted in catboyHostSysctlV2Deviations, sorted by
                  key. At most 32 rows (the checklist size limit), so the table
                  always holds every deviation."
-    ::= { catboyHostSysctl 3 }
+    ::= { catboyHostSysctl 6 }
 
-catboyHostSysctlDevEntry OBJECT-TYPE
-    SYNTAX      CatboyHostSysctlDevEntry
+catboyHostSysctlV2DevEntry OBJECT-TYPE
+    SYNTAX      CatboyHostSysctlV2DevEntry
     MAX-ACCESS  not-accessible
     STATUS      current
     DESCRIPTION "One sysctl key whose value neither equals the expected
                  value nor is stricter than it."
-    INDEX       { catboyHostSysctlDevIndex }
-    ::= { catboyHostSysctlDevTable 1 }
+    INDEX       { catboyHostSysctlV2DevIndex }
+    ::= { catboyHostSysctlV2DevTable 1 }
 
-CatboyHostSysctlDevEntry ::= SEQUENCE {
-    catboyHostSysctlDevIndex    Unsigned32,
-    catboyHostSysctlDevKey      DisplayString,
-    catboyHostSysctlDevExpected DisplayString,
-    catboyHostSysctlDevActual   DisplayString
+CatboyHostSysctlV2DevEntry ::= SEQUENCE {
+    catboyHostSysctlV2DevIndex    Unsigned32,
+    catboyHostSysctlV2DevKey      DisplayString,
+    catboyHostSysctlV2DevExpected DisplayString,
+    catboyHostSysctlV2DevActual   DisplayString
 }
 
-catboyHostSysctlDevIndex OBJECT-TYPE
+catboyHostSysctlV2DevIndex OBJECT-TYPE
     SYNTAX      Unsigned32 (1..32)
     MAX-ACCESS  not-accessible
     STATUS      current
     DESCRIPTION "Row index: the position of the key in the sorted list. It
                  changes when a deviation is added or removed. Consumers key
-                 on catboyHostSysctlDevKey."
-    ::= { catboyHostSysctlDevEntry 1 }
+                 on catboyHostSysctlV2DevKey."
+    ::= { catboyHostSysctlV2DevEntry 1 }
 
-catboyHostSysctlDevKey OBJECT-TYPE
+catboyHostSysctlV2DevKey OBJECT-TYPE
     SYNTAX      DisplayString (SIZE (1..64))
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "The sysctl key in dotted form (for example
                  kernel.kptr_restrict)."
-    ::= { catboyHostSysctlDevEntry 2 }
+    ::= { catboyHostSysctlV2DevEntry 2 }
 
-catboyHostSysctlDevExpected OBJECT-TYPE
+catboyHostSysctlV2DevExpected OBJECT-TYPE
     SYNTAX      DisplayString (SIZE (1..32))
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "The expected value for the host's fleet role, as the decimal
                  text sysctl prints: the least strict value that complies."
-    ::= { catboyHostSysctlDevEntry 3 }
+    ::= { catboyHostSysctlV2DevEntry 3 }
 
-catboyHostSysctlDevActual OBJECT-TYPE
+catboyHostSysctlV2DevActual OBJECT-TYPE
     SYNTAX      DisplayString (SIZE (0..32))
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "The running value as the text sysctl prints, with runs of
                  white space collapsed to one space. Zero-length if the
                  running kernel does not have the key."
-    ::= { catboyHostSysctlDevEntry 4 }
+    ::= { catboyHostSysctlV2DevEntry 4 }
 
 -- Journal (collector 5; 1 h values every minute, 24 h and 48 h values every
 -- 10 minutes; each query is bounded by a start time and a time limit)
@@ -1204,7 +1323,8 @@ catboyHostReasonCode OBJECT-TYPE
     SYNTAX      INTEGER { failedUnit(1), journalCrit(2), oomKill(3),
                           coredump(4), diskFull(5), securityOverdue(6),
                           firewallMissing(7), dnsFailures(8),
-                          sshRootPassword(9), sysctlScoreLow(10) }
+                          sshRootPassword(9), sysctlScoreLow(10),
+                          sysctlScoreLowV2(11) }
     MAX-ACCESS  not-accessible
     STATUS      current
     DESCRIPTION "Row index: why intervention is needed. failedUnit(1) a unit
@@ -1219,7 +1339,9 @@ catboyHostReasonCode OBJECT-TYPE
                  catboyHostDnsFail15m is 5 or more; sshRootPassword(9)
                  catboyHostSshPasswordAuth is true and catboyHostSshRootLogin
                  is yes(1); sysctlScoreLow(10) catboyHostSysctlScore is below
-                 60. Codes are never reused or renumbered; new codes are
+                 60 (an agent that serves catboyHostSysctlV2Group reports
+                 code 11 instead); sysctlScoreLowV2(11)
+                 catboyHostSysctlV2Score is below 60. Codes are never reused or renumbered; new codes are
                  added at the end, never above 16."
     ::= { catboyHostReasonEntry 1 }
 
@@ -1296,8 +1418,10 @@ catboyHostSysctlGroup OBJECT-GROUP
     OBJECTS { catboyHostSysctlScore, catboyHostSysctlDeviations,
               catboyHostSysctlDevKey, catboyHostSysctlDevExpected,
               catboyHostSysctlDevActual }
-    STATUS  current
-    DESCRIPTION "sysctl hardening score and the deviation table."
+    STATUS  deprecated
+    DESCRIPTION "sysctl hardening score and the deviation table, first
+                 meaning (a value must equal the expected value).
+                 Deprecated: replaced by catboyHostSysctlV2Group."
     ::= { catboyHostGroups 5 }
 
 catboyHostJournalGroup OBJECT-GROUP
@@ -1364,7 +1488,7 @@ catboyHostDerivedGroup OBJECT-GROUP
     ::= { catboyHostGroups 11 }
 
 catboyHostCompliance MODULE-COMPLIANCE
-    STATUS  current
+    STATUS  deprecated
     DESCRIPTION "Compliance for catboy-agent hosts that run the hostsec
                  collectors. A collector the host does not support still
                  serves its objects with catboyHostCollState unsupported(5)
@@ -1377,5 +1501,29 @@ catboyHostCompliance MODULE-COMPLIANCE
                            catboyHostSshdGroup, catboyHostPressureGroup,
                            catboyHostDerivedGroup }
     ::= { catboyHostCompliances 1 }
+
+catboyHostSysctlV2Group OBJECT-GROUP
+    OBJECTS { catboyHostSysctlV2Score, catboyHostSysctlV2Deviations,
+              catboyHostSysctlV2DevKey, catboyHostSysctlV2DevExpected,
+              catboyHostSysctlV2DevActual }
+    STATUS  current
+    DESCRIPTION "sysctl hardening score and the deviation table: a value
+                 that equals the expected value or is stricter complies."
+    ::= { catboyHostGroups 12 }
+
+catboyHostComplianceV2 MODULE-COMPLIANCE
+    STATUS  current
+    DESCRIPTION "Compliance for catboy-agent hosts that run the hostsec
+                 collectors, with the V2 sysctl objects. A collector the
+                 host does not support still serves its objects with
+                 catboyHostCollState unsupported(5) and the unknown values."
+    MODULE
+        MANDATORY-GROUPS { catboyHostCollGroup, catboyHostFirewallGroup,
+                           catboyHostAptGroup, catboyHostRebootGroup,
+                           catboyHostSysctlV2Group, catboyHostJournalGroup,
+                           catboyHostUnitsGroup, catboyHostDnsGroup,
+                           catboyHostSshdGroup, catboyHostPressureGroup,
+                           catboyHostDerivedGroup }
+    ::= { catboyHostCompliances 2 }
 
 END

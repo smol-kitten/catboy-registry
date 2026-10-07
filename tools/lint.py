@@ -105,16 +105,20 @@ def main() -> int:
                 shown = m.group(0) if what in TOPOLOGY else m.group(0)[:4] + "…(redacted)"  # never echo a secret into CI logs
                 findings.append(f"{p.relative_to(ROOT)}: {what} '{shown}' — this repo is public; identifiers only")
                 break
-    try:  # the state document example must match its schema
-        import jsonschema
-        st = ROOT / "specs" / "state"
-        jsonschema.validate(json.loads((st / "example.json").read_text()), json.loads((st / "catboy-state.schema.json").read_text()))
-    except ImportError:
-        pass
-    except FileNotFoundError as e:
-        findings.append(f"specs/state: {e.filename} missing")
-    except Exception as e:  # noqa: BLE001
-        findings.append(f"specs/state/example.json: {getattr(e, 'message', e)}")
+    st = ROOT / "specs" / "state"
+    for example, schema in (("example.json", "catboy-state.schema.json"), ("sentinel-example.json", "sentinel.schema.json")):
+        try:  # each state example must match its schema; the sentinel schema refers to the state schema
+            import jsonschema
+            from referencing import Registry, Resource
+            docs = {f: json.loads((st / f).read_text()) for f in ("catboy-state.schema.json", schema)}
+            reg_ = Registry().with_resources((f, Resource.from_contents(d)) for f, d in docs.items())
+            jsonschema.Draft202012Validator(docs[schema], registry=reg_).validate(json.loads((st / example).read_text()))
+        except ImportError:
+            pass
+        except FileNotFoundError as e:
+            findings.append(f"specs/state: {e.filename} missing")
+        except Exception as e:  # noqa: BLE001
+            findings.append(f"specs/state/{example}: {getattr(e, 'message', e)}")
     for f in findings: print("LINT:", f)
     print(f"lint: {len(findings)} finding(s), {len(oids)} arcs, pen={reg.get('pen')}")
     return 1 if findings else 0

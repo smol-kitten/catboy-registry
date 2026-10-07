@@ -87,8 +87,12 @@ public static class Ids
     };
 
     /// <summary>specs/uuid/namespace.md, algorithm P. Throws ArgumentException on invalid input.</summary>
-    public static string CanonicalPath(string path)
+    public static readonly string[] PathProfiles = { "default", "nginx", "nginx-nomerge" };
+
+    /// <summary>Algorithm P with a product profile: default, nginx (merge_slashes on, trailing '/' significant), nginx-nomerge.</summary>
+    public static string CanonicalPath(string path, string profile = "default")
     {
+        if (Array.IndexOf(PathProfiles, profile) < 0) throw new ArgumentException($"unknown path profile {profile}");
         if (path.Length == 0) return "/";
         if (path[0] != '/') throw new ArgumentException("path must start with '/'");
         if (path.IndexOfAny(new[] { '?', '#' }) >= 0) throw new ArgumentException("path must not contain '?' or '#'");
@@ -110,7 +114,10 @@ public static class Ids
             else if (c < 0x80 && PathRaw.Contains((char)c)) { sb.Append((char)c); i++; }
             else { sb.Append('%').Append(c.ToString("X2")); i++; }
         }
-        var p = RemoveDotSegments(sb.ToString()).TrimEnd('/');
+        var s = sb.ToString();
+        if (profile == "nginx") while (s.Contains("//")) s = s.Replace("//", "/"); // merge_slashes on, before P5
+        var p = RemoveDotSegments(s);
+        if (profile == "default") p = p.TrimEnd('/');
         return p.Length == 0 ? "/" : p;
     }
 
@@ -136,7 +143,7 @@ public static class Ids
     public static string SiteId(string domain) => Uuid5(Oid.CatboyNamespace, "catwaf-site:" + CanonicalDomain(domain));
 
     /// <summary>uuid5(site id, "route:" + canonical path).</summary>
-    public static string RouteId(string siteId, string path) => Uuid5(siteId, "route:" + CanonicalPath(path));
+    public static string RouteId(string siteId, string path, string profile = "default") => Uuid5(siteId, "route:" + CanonicalPath(path, profile));
 
     /// <summary>uuid5(CatboyNamespace, kind + ":" + key).</summary>
     public static string EntryId(string kind, string key) => Uuid5(Oid.CatboyNamespace, kind + ":" + key);
@@ -168,4 +175,17 @@ public static class Hlc
             throw new InvalidOperationException($"remote hlc is {(remote >> 16) - nowMs} ms ahead");
         return Math.Max(Encode(nowMs, 0), Math.Max(last + 1, remote + 1));
     }
+
+    /// <summary>Order of two changes (specs/state/README.md 3.3): the triple (hlc, instance, change_id).
+    /// A missing instance (null) counts as 0. change_id compares as an unsigned 128-bit integer.</summary>
+    public static int CompareChange(ulong aHlc, ulong? aInstance, string aChangeId, ulong bHlc, ulong? bInstance, string bChangeId)
+    {
+        var c = Compare(aHlc, bHlc);
+        if (c == 0) c = Compare(aInstance ?? 0, bInstance ?? 0);
+        if (c == 0) c = Math.Sign(string.CompareOrdinal(UuidHex(aChangeId), UuidHex(bChangeId)));
+        return c;
+    }
+
+    private static string UuidHex(string u) =>
+        Guid.TryParseExact(u, "D", out var g) ? g.ToString("N") : throw new ArgumentException("invalid uuid", nameof(u));
 }

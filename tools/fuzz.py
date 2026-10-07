@@ -53,6 +53,7 @@ def rand_segment(r: random.Random) -> str:
 def rand_path(r: random.Random) -> str:
     p = "/" + "/".join(rand_segment(r) for _ in range(r.randint(0, 5)))
     if r.random() < 0.3: p += "/"
+    if r.random() < 0.15: p = p.replace("/", "/" * r.randint(2, 3), 1)  # repeated slashes (nginx profile)
     if r.random() < 0.02: p = p.lstrip("/")
     return p
 

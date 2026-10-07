@@ -23,7 +23,7 @@ Each stateful system publishes these fields:
 
 | Field | Type | Meaning |
 |---|---|---|
-| `system` | UUID | `uuid5(CATBOY_NAMESPACE, "state-system:<software>/<instance>/<store>")`. `<software>` is the registry name of the product (`catwaf`), `<instance>` is the `.1.12` number, `<store>` is a short store name that the product chooses (`sites`). It never changes. |
+| `system` | UUID | `uuid5(CATBOY_NAMESPACE, "state-system:<software>/<instance>/<store>")`. `<software>` is the registry name of the product (`catwaf`), `<instance>` is the `.1.12` number in decimal, `<store>` is a short store name that the product chooses (`sites`). `<store>` MUST match `^[a-z0-9][a-z0-9-]{0,31}$`, so the key has exactly two `/`. It never changes. |
 | `epoch` | UUIDv7 | A new value at init and at every restore. |
 | `parent_epoch` | UUID or null | The epoch that this epoch was forked from. `null` for the first epoch. |
 | `fork_seq` | integer or null | The `seq` of `parent_epoch` at the restore point. `null` for the first epoch. |
@@ -58,6 +58,9 @@ Each instance keeps `last`, the HLC of its last event. `now` is the local wall c
 2. **Receive** (every remote change or state document that carries `remote`):
    1. If `(remote >> 16) - now > max_drift_ms`, refuse the remote value. Do not change `last`.
       Log the skew and raise an alarm. The default `max_drift_ms` is 60000.
+      Refuse the **whole** change or document that carried the value: do not apply it, and try it
+      again at the next sync. A change that is applied without its HLC merged can win over a later
+      local write, because that local write can get a lower `hlc`.
    2. Else `last = max(now << 16, last + 1, remote + 1)`.
 
 These rules are the standard HLC rules (Kulkarni et al., 2014) in one integer. When the logical
@@ -69,10 +72,18 @@ and `Hlc.Receive` (C#).
 
 ### 3.3 Order of changes
 
-- "Newer" means the higher `hlc`. When two changes have the same `hlc`, the change from the higher
-  instance number wins.
+- "Newer" means the higher triple `(hlc, instance, change_id)`. Compare `hlc` first, then the
+  instance number, then `change_id`. A change without an instance number counts as instance 0.
+  `change_id` compares as an unsigned 128-bit integer; that is the same as comparing the canonical
+  lower-case UUID strings byte by byte. Every instance compares the same triple, so every instance
+  picks the same winner, also when two instances share or lack a number.
+- The generated helpers are `change_compare` (Python), `ChangeCompare` (Go), `Hlc::compareChange`
+  (PHP) and `Hlc.CompareChange` (C#). They return -1, 0 or 1. `tests/vectors/hlc.json`
+  (`change_compare`) has the vectors.
 - `rev` is a per-entry edit counter. The writer sets `rev = parent rev + 1` and every receiver
-  stores the received `rev`. `rev` is never used to order changes.
+  stores the received `rev`. So `rev` is part of the replicated state, not a local counter: the
+  root (section 4.3) contains `rev`, and only a carried `rev` gives the same root on every instance.
+  `rev` is never used to order changes.
 
 ## 4. Entries, changes and the root
 
@@ -93,8 +104,14 @@ on, or `null` for a new entry), `id`, `rev`, `hlc`, `instance` and `content_hash
 A received change whose `parent` is not the current head `change_id` of the entry is a
 **concurrent edit**. Then the receiver:
 
-1. keeps the change with the higher `(hlc, instance)`, by section 3.3;
+1. keeps the change with the higher `(hlc, instance, change_id)`, by section 3.3;
 2. flags a conflict for the entry and logs both `change_id` values.
+
+The head of an entry is always the change with the highest triple that the receiver has seen.
+A change whose `change_id` the receiver already knows is a duplicate: ignore it. A change that
+arrives after one of its descendants (out-of-order delivery) loses by its lower triple, so the
+result is correct, but it is flagged as a conflict. A transport that keeps the order of the
+changes from one writer avoids these false conflicts.
 
 Every instance applies the same rule to the same two changes, so every instance keeps the same
 winner. Concurrent edits have no true order; the rule only makes the result the same everywhere.
@@ -173,19 +190,53 @@ seq and same root means in sync. A peer logs the rule and the reason for every r
 
 A system can also find its own restore, also when no peer is online.
 
-1. The system writes `(epoch, seq)` to a small sentinel file **outside its backup set**. It updates
-   the file after every commit, never before the commit. So the sentinel seq is never higher than
-   the data seq in normal operation.
+### 9.1 Format
+
+The sentinel is one JSON document. Schema: [sentinel.schema.json](sentinel.schema.json);
+CI validates [sentinel-example.json](sentinel-example.json) against it.
+
+```json
+{"version": 1, "system": "c6e68e9f-3989-5bbb-888b-f6228f3cbb21", "epoch": "01928f3a-6c1e-7b3d-9a41-5f0c2e7d8b19", "seq": 1873, "hlc": "117309440000000004"}
+```
+
+The fields have the meanings of section 2: `system`, `epoch` and `seq` of the last commit, and
+`hlc` of that commit.
+
+### 9.2 Location
+
+Each system defines the sentinel location and how the location stays **outside its backup set**,
+in its own repository, before it claims support for this spec. Write the sentinel atomically
+(write a temporary file, flush it, rename it over the old one).
+
+### 9.3 Rules
+
+1. The system writes the sentinel after every commit, never before the commit. So the sentinel
+   `seq` is never higher than the data `seq` in normal operation.
 2. At start, the system reads the sentinel and its data:
-   - Sentinel missing: first start or a new host. Write the sentinel and log it.
-   - Same epoch and data `seq` < sentinel `seq`: **a restore**. Mint a new epoch (section 8).
-   - Different epoch: the data comes from another epoch than the last run. Treat it as a restore
-     and mint a new epoch.
+   - Sentinel `system` differs from the data `system`: a configuration error. Do not start.
+   - Sentinel missing and the store is empty (`seq` 0 and no entries): first start. Write the
+     sentinel and log it.
+   - Sentinel missing and the store is not empty: a restore to a new host, or a lost sentinel.
+     Treat it as a restore and mint a new epoch (section 8). A wrong guess costs one epoch;
+     peers find the known parent and resync from `fork_seq`, which has nothing to send.
+     So a move to a new host always mints one epoch, unless the operator moves the sentinel
+     with the data. That cost is accepted: an undetected restore to a new host is worse.
+   - Same epoch and data `seq` < sentinel `seq`: **a restore**. Mint a new epoch.
+   - Data epoch differs, and the data `parent_epoch` is the sentinel epoch and the data `seq`
+     equals its `fork_seq`: an earlier start minted this epoch and stopped before it wrote the
+     sentinel. Write the sentinel; this is a normal start.
+   - Data epoch differs in any other way: the data comes from another epoch than the last run.
+     Treat it as a restore and mint a new epoch.
    - Else: a normal start.
-3. After it mints a new epoch, the system writes the sentinel again.
+3. After a restore, the system sets `last = max(last, sentinel hlc)` before its next HLC event,
+   so its new changes order after the changes that peers saw before the restore.
+4. After it mints a new epoch, the system writes the sentinel again.
+
+The verification for every system: restore a backup while no peer is online. At the next start,
+the sentinel MUST find the restore and the system MUST mint a new epoch.
 
 ## 10. Test vectors
 
-`tests/vectors/hlc.json` (encode, send, receive with clock skew and drift, compare) and
+`tests/vectors/hlc.json` (encode, send, receive with clock skew and drift, compare, change order) and
 `tests/vectors/state.json` (root). CI runs the HLC vectors in Python, Go, PHP and C#, and the root
 vectors in Python and Go.

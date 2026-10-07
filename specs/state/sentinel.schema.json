@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/smol-kitten/catboy-registry/blob/main/specs/state/sentinel.schema.json",
+  "title": "catboy-state restore sentinel (arc .1.13, specs/state/README.md section 9)",
+  "type": "object",
+  "required": ["version", "system", "epoch", "seq", "hlc"],
+  "properties": {
+    "version": {"const": 1, "description": "sentinel format version"},
+    "system": {"$ref": "catboy-state.schema.json#/$defs/uuid", "description": "the system of the data; a mismatch at start is a configuration error"},
+    "epoch": {"$ref": "catboy-state.schema.json#/$defs/uuid", "description": "epoch of the last commit"},
+    "seq": {"$ref": "catboy-state.schema.json#/$defs/seq", "description": "seq of the last commit; written after the commit, never before"},
+    "hlc": {"$ref": "catboy-state.schema.json#/$defs/u64", "description": "HLC of the last commit; after a restore, last = max(last, hlc)"}
+  },
+  "additionalProperties": false
+}
