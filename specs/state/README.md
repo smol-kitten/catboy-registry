@@ -219,6 +219,8 @@ in its own repository, before it claims support for this spec. Write the sentine
    - Sentinel missing and the store is not empty: a restore to a new host, or a lost sentinel.
      Treat it as a restore and mint a new epoch (section 8). A wrong guess costs one epoch;
      peers find the known parent and resync from `fork_seq`, which has nothing to send.
+     So a move to a new host always mints one epoch, unless the operator moves the sentinel
+     with the data. That cost is accepted: an undetected restore to a new host is worse.
    - Same epoch and data `seq` < sentinel `seq`: **a restore**. Mint a new epoch.
    - Data epoch differs, and the data `parent_epoch` is the sentinel epoch and the data `seq`
      equals its `fork_seq`: an earlier start minted this epoch and stopped before it wrote the

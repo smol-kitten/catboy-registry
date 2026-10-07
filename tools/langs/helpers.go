@@ -132,8 +132,15 @@ func removeDotSegments(path string) string {
 	return "/" + strings.Join(out, "/")
 }
 
-// CanonicalPath implements specs/uuid/namespace.md, algorithm P.
-func CanonicalPath(path string) (string, error) {
+// CanonicalPath implements specs/uuid/namespace.md, algorithm P (profile "default").
+func CanonicalPath(path string) (string, error) { return CanonicalPathProfile(path, "default") }
+
+// CanonicalPathProfile implements algorithm P with a product profile: "default", "nginx"
+// (merge_slashes on, trailing '/' significant) or "nginx-nomerge".
+func CanonicalPathProfile(path, profile string) (string, error) {
+	if profile != "default" && profile != "nginx" && profile != "nginx-nomerge" {
+		return "", fmt.Errorf("%w: unknown path profile %q", errInvalid, profile)
+	}
 	if path == "" {
 		return "/", nil
 	}
@@ -174,7 +181,16 @@ func CanonicalPath(path string) (string, error) {
 			i++
 		}
 	}
-	p := strings.TrimRight(removeDotSegments(b.String()), "/")
+	s := b.String()
+	if profile == "nginx" { // merge_slashes on: runs of '/' become one, before P5
+		for strings.Contains(s, "//") {
+			s = strings.ReplaceAll(s, "//", "/")
+		}
+	}
+	p := removeDotSegments(s)
+	if profile == "default" {
+		p = strings.TrimRight(p, "/")
+	}
 	if p == "" {
 		p = "/"
 	}
@@ -223,9 +239,12 @@ func SiteId(domain string) (string, error) {
 	return UUID5(CatboyNamespace, "catwaf-site:"+d)
 }
 
-// RouteId returns uuid5(site id, "route:" + canonical path).
-func RouteId(siteID, path string) (string, error) {
-	p, err := CanonicalPath(path)
+// RouteId returns uuid5(site id, "route:" + canonical path) (profile "default").
+func RouteId(siteID, path string) (string, error) { return RouteIdProfile(siteID, path, "default") }
+
+// RouteIdProfile returns uuid5(site id, "route:" + CanonicalPathProfile(path, profile)).
+func RouteIdProfile(siteID, path, profile string) (string, error) {
+	p, err := CanonicalPathProfile(path, profile)
 	if err != nil {
 		return "", err
 	}

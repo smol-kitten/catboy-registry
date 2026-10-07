@@ -78,6 +78,11 @@ func vectors(dir string) int {
 		SiteDomain string `json:"site_domain"`
 		SiteID     string `json:"site_id"`
 		Cases      []idCase
+		Profiles   []struct {
+			Input, Profile, Canonical string
+			RouteID                   string `json:"route_id"`
+			Error                     bool
+		} `json:"profile_cases"`
 	}
 	load(dir, "paths.json", &paths)
 	check("site_id example.com", orErr(registry.SiteId(paths.SiteDomain)), paths.SiteID)
@@ -90,6 +95,16 @@ func vectors(dir string) int {
 		check("path "+strconv.Quote(c.Input), got, c.Canonical)
 		check("route_id "+strconv.Quote(c.Input), orErr(registry.RouteId(paths.SiteID, c.Input)), c.RouteID)
 		check("route_oid "+strconv.Quote(c.Input), orErr(registry.OidFromUuid(c.RouteID)), c.RouteOid)
+	}
+	for _, c := range paths.Profiles {
+		what := "path[" + c.Profile + "] " + strconv.Quote(c.Input)
+		got := orErr(registry.CanonicalPathProfile(c.Input, c.Profile))
+		if c.Error {
+			check(what, got, "ERR")
+			continue
+		}
+		check(what, got, c.Canonical)
+		check("route_id["+c.Profile+"] "+strconv.Quote(c.Input), orErr(registry.RouteIdProfile(paths.SiteID, c.Input, c.Profile)), c.RouteID)
 	}
 	var uu struct {
 		Namespace   string                             `json:"namespace"`
@@ -266,14 +281,22 @@ func fuzz(path string) int {
 		fmt.Fprintf(&sb, "D\t%s\t%s\t%s\n", c, s, o)
 	}
 	for _, p := range in.Paths {
-		r, err := registry.RouteId(site, p)
-		if err != nil {
+		if r, err := registry.RouteId(site, p); err != nil {
 			sb.WriteString("P\tERR\t-\t-\n")
-			continue
+		} else {
+			c, _ := registry.CanonicalPath(p)
+			o, _ := registry.OidFromUuid(r)
+			fmt.Fprintf(&sb, "P\t%s\t%s\t%s\n", c, r, o)
 		}
-		c, _ := registry.CanonicalPath(p)
-		o, _ := registry.OidFromUuid(r)
-		fmt.Fprintf(&sb, "P\t%s\t%s\t%s\n", c, r, o)
+		for _, tp := range [][2]string{{"N", "nginx"}, {"M", "nginx-nomerge"}} {
+			c, err := registry.CanonicalPathProfile(p, tp[1])
+			r, err2 := registry.RouteIdProfile(site, p, tp[1])
+			if err != nil || err2 != nil {
+				fmt.Fprintf(&sb, "%s\tERR\t-\n", tp[0])
+				continue
+			}
+			fmt.Fprintf(&sb, "%s\t%s\t%s\n", tp[0], c, r)
+		}
 	}
 	os.Stdout.WriteString(sb.String())
 	return 0

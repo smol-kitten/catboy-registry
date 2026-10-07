@@ -71,6 +71,30 @@ error.
 
 The algorithm does not change the case of the path, and it does not merge `//`.
 
+### Profiles
+
+A product that routes by path gives its routes ids that follow its own routing rules, so two
+paths that the product treats as one route get one id, and two that it treats as different get two.
+The profile is a parameter of algorithm P. It does not change the uuid5 name (`route:` + result).
+
+| Profile | Repeated `/` | Trailing `/` | Use |
+|---|---|---|---|
+| `default` | kept | removed (step 6) | product-neutral ids |
+| `nginx` | merged to one, before step 5 | kept (`/api` and `/api/` differ) | nginx with `merge_slashes on` (the nginx default; CatWAF) |
+| `nginx-nomerge` | kept | kept | nginx with `merge_slashes off` |
+
+- `nginx`: after step 4, replace every run of `/` with one `/`, then run step 5. This is the nginx
+  order: `/a//../b` gives `/b`.
+- The nginx profiles skip step 6. An empty result is `/`.
+- An unknown profile is an error.
+- Known difference: nginx matches locations on the decoded URI, so it treats `%2F` as `/`. All profiles keep
+  `%2F` encoded (step 4). A product route that contains `%2F` therefore gets its own id.
+
+CatWAF uses `nginx`, or `nginx-nomerge` on a site with `merge_slashes off`. The helpers take the
+profile as an optional last argument (`canonical_path(path, profile)`, `route_id(site, path,
+profile)`; Go `CanonicalPathProfile` and `RouteIdProfile`). `tests/vectors/paths.json`
+(`profile_cases`) has the vectors, and the CI fuzz run compares the profiles in all four languages.
+
 Examples: `/a/` → `/a`; `/a/%2f` → `/a/%2F`; `/a/./b/../c/` → `/a/c`; `/%7Euser` → `/~user`;
 `/ü` → `/%C3%BC`; `/..` → `/`.
 

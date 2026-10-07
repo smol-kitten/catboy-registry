@@ -90,8 +90,14 @@ def _remove_dot_segments(path: str) -> str:
     return "/" + "/".join(out)
 
 
-def canonical_path(path: str) -> str:
-    """specs/uuid/namespace.md, algorithm P. Raises ValueError on an invalid path."""
+PATH_PROFILES = ("default", "nginx", "nginx-nomerge")
+
+
+def canonical_path(path: str, profile: str = "default") -> str:
+    """specs/uuid/namespace.md, algorithm P with a product profile. Raises ValueError on an
+    invalid path or an unknown profile."""
+    if profile not in PATH_PROFILES:
+        raise ValueError(f"unknown path profile {profile!r}")
     if path == "":  # P1
         return "/"
     if not path.startswith("/"):
@@ -119,8 +125,14 @@ def canonical_path(path: str) -> str:
         else:
             out.append("%%%02X" % c)
             i += 1
-    p = _remove_dot_segments("".join(out))  # P5
-    return p.rstrip("/") or "/"  # P6
+    s = "".join(out)
+    if profile == "nginx":  # merge_slashes on: runs of '/' become one, before P5 (as nginx parses)
+        while "//" in s:
+            s = s.replace("//", "/")
+    p = _remove_dot_segments(s)  # P5
+    if profile == "default":
+        return p.rstrip("/") or "/"  # P6
+    return p or "/"  # nginx profiles: a trailing '/' is significant
 
 
 def site_id(domain: str) -> str:
@@ -128,9 +140,9 @@ def site_id(domain: str) -> str:
     return str(_uuid.uuid5(_NS, "catwaf-site:" + canonical_domain(domain)))
 
 
-def route_id(site: str, path: str) -> str:
+def route_id(site: str, path: str, profile: str = "default") -> str:
     """uuid5(site id, "route:" + canonical path)."""
-    return str(_uuid.uuid5(_uuid.UUID(site), "route:" + canonical_path(path)))
+    return str(_uuid.uuid5(_uuid.UUID(site), "route:" + canonical_path(path, profile)))
 
 
 def entry_id(kind: str, key: str) -> str:

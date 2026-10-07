@@ -39,6 +39,12 @@ def vectors(vec: pathlib.Path) -> int:
         check(f"path {c['input']!r}", o.canonical_path(c["input"]), c["canonical"])
         check(f"route_id {c['input']!r}", o.route_id(p["site_id"], c["input"]), c["route_id"])
         check(f"route_oid {c['input']!r}", o.oid_from_uuid(c["route_id"]), c["route_oid"])
+    for c in p["profile_cases"]:
+        what = f"path[{c['profile']}] {c['input']!r}"
+        if c.get("error"):
+            check(what, err(o.canonical_path, c["input"], c["profile"]), "ERR"); continue
+        check(what, o.canonical_path(c["input"], c["profile"]), c["canonical"])
+        check(f"route_id[{c['profile']}] {c['input']!r}", o.route_id(p["site_id"], c["input"], c["profile"]), c["route_id"])
     u = json.loads((vec / "uuid.json").read_text())
     check("namespace", o.CATBOY_NAMESPACE, u["namespace"])
     for c in u["oid_from_uuid"]: check(f"oid_from_uuid {c['uuid']}", o.oid_from_uuid(c["uuid"]), c["oid"])
@@ -88,6 +94,11 @@ def fuzz(path: str) -> int:
             r = o.route_id(site, p); out.append(f"P\t{o.canonical_path(p)}\t{r}\t{o.oid_from_uuid(r)}")
         except ValueError:
             out.append("P\tERR\t-\t-")
+        for tag, prof in (("N", "nginx"), ("M", "nginx-nomerge")):
+            try:
+                out.append(f"{tag}\t{o.canonical_path(p, prof)}\t{o.route_id(site, p, prof)}")
+            except ValueError:
+                out.append(f"{tag}\tERR\t-")
     sys.stdout.write("\n".join(out) + "\n")
     return 0
 

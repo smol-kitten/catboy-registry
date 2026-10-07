@@ -42,6 +42,17 @@ def dom_case(d):
     return {"input": d, "canonical": c, "site_id": s, "site_oid": o.oid_from_uuid(s)}
 
 
+PROFILE_EXTRA = ["/api", "/api/", "//", "/a//../b", "/a///b/", "/a/.//b", "/%2F%2F", "/a/%2F/"]
+
+
+def profile_case(site, p, profile):
+    try:
+        c = o.canonical_path(p, profile)
+    except ValueError:
+        return {"input": p, "profile": profile, "error": True}
+    return {"input": p, "profile": profile, "canonical": c, "route_id": o.route_id(site, p, profile)}
+
+
 def path_case(site, p):
     try:
         c = o.canonical_path(p)
@@ -112,7 +123,9 @@ def main() -> int:
         "domains.json": {"description": "canonical_domain + site_id + oid_from_uuid (specs/uuid/namespace.md, algorithm D)",
                          "cases": [dom_case(d) for d in DOMAINS]},
         "paths.json": {"description": "canonical_path + route_id under the site of example.com (algorithm P)",
-                       "site_domain": SITE_DOMAIN, "site_id": site, "cases": [path_case(site, p) for p in PATHS]},
+                       "site_domain": SITE_DOMAIN, "site_id": site, "cases": [path_case(site, p) for p in PATHS],
+                       "profile_cases": [profile_case(site, p, pr) for pr in ("nginx", "nginx-nomerge") for p in PATHS + PROFILE_EXTRA]
+                                        + [profile_case(site, "/a", "apache")]},
         "uuid.json": {"description": "uuid5, entry ids and the X.667 2.25 OID form",
                       "namespace": o.CATBOY_NAMESPACE,
                       "oid_from_uuid": [{"uuid": u, "oid": o.oid_from_uuid(u)} for u in [

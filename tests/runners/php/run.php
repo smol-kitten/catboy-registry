@@ -60,6 +60,16 @@ function vectors(string $dir): int
         $check("route_id '$in'", Ids::routeId($p['site_id'], $in), $c['route_id']);
         $check("route_oid '$in'", Ids::oidFromUuid($c['route_id']), $c['route_oid']);
     }
+    foreach ($p['profile_cases'] as $c) {
+        [$in, $pr] = [$c['input'], $c['profile']];
+        $got = orErr(fn () => Ids::canonicalPath($in, $pr));
+        if (!empty($c['error'])) {
+            $check("path[$pr] '$in'", $got, 'ERR');
+            continue;
+        }
+        $check("path[$pr] '$in'", $got, $c['canonical']);
+        $check("route_id[$pr] '$in'", Ids::routeId($p['site_id'], $in, $pr), $c['route_id']);
+    }
     $u = load($dir, 'uuid.json');
     $check('namespace', Oid::CATBOY_NAMESPACE, $u['namespace']);
     foreach ($u['oid_from_uuid'] as $c) {
@@ -139,6 +149,13 @@ function fuzz(string $file): int
             $out .= "P\t" . Ids::canonicalPath($p) . "\t$r\t" . Ids::oidFromUuid($r) . "\n";
         } catch (\InvalidArgumentException) {
             $out .= "P\tERR\t-\t-\n";
+        }
+        foreach (['N' => 'nginx', 'M' => 'nginx-nomerge'] as $tag => $pr) {
+            try {
+                $out .= "$tag\t" . Ids::canonicalPath($p, $pr) . "\t" . Ids::routeId($site, $p, $pr) . "\n";
+            } catch (\InvalidArgumentException) {
+                $out .= "$tag\tERR\t-\n";
+            }
         }
     }
     echo $out;
