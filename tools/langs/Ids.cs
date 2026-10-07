@@ -168,4 +168,17 @@ public static class Hlc
             throw new InvalidOperationException($"remote hlc is {(remote >> 16) - nowMs} ms ahead");
         return Math.Max(Encode(nowMs, 0), Math.Max(last + 1, remote + 1));
     }
+
+    /// <summary>Order of two changes (specs/state/README.md 3.3): the triple (hlc, instance, change_id).
+    /// A missing instance (null) counts as 0. change_id compares as an unsigned 128-bit integer.</summary>
+    public static int CompareChange(ulong aHlc, ulong? aInstance, string aChangeId, ulong bHlc, ulong? bInstance, string bChangeId)
+    {
+        var c = Compare(aHlc, bHlc);
+        if (c == 0) c = Compare(aInstance ?? 0, bInstance ?? 0);
+        if (c == 0) c = Math.Sign(string.CompareOrdinal(UuidHex(aChangeId), UuidHex(bChangeId)));
+        return c;
+    }
+
+    private static string UuidHex(string u) =>
+        Guid.TryParseExact(u, "D", out var g) ? g.ToString("N") : throw new ArgumentException("invalid uuid", nameof(u));
 }

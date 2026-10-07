@@ -177,6 +177,13 @@ def hlc_receive(last: int, remote: int, now_ms: int, max_drift_ms: int = HLC_MAX
     return max(hlc_encode(now_ms, 0), last + 1, remote + 1)
 
 
+def change_compare(a_hlc: int, a_instance, a_change_id: str, b_hlc: int, b_instance, b_change_id: str) -> int:
+    """Order of two changes (specs/state/README.md 3.3): the triple (hlc, instance, change_id).
+    A missing instance (None) counts as 0. change_id compares as an unsigned 128-bit integer."""
+    a = (a_hlc, a_instance or 0, _uuid.UUID(a_change_id).int)
+    b = (b_hlc, b_instance or 0, _uuid.UUID(b_change_id).int)
+    return (a > b) - (a < b)
+
 def state_root(entries) -> str:
     """sha256 over the sorted "id:rev:content_hash\\n" lines (specs/state/README.md)."""
     lines = sorted(f"{e[0].lower()}:{int(e[1])}:{e[2].lower()}\n".encode() for e in entries)

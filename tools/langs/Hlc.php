@@ -41,4 +41,25 @@ final class Hlc
         }
         return max(self::encode($nowMs, 0), $last + 1, $remote + 1);
     }
+
+    /**
+     * Order of two changes (specs/state/README.md 3.3): the triple (hlc, instance, change_id).
+     * A missing instance (null) counts as 0. change_id compares as an unsigned 128-bit integer.
+     */
+    public static function compareChange(int $aHlc, ?int $aInstance, string $aChangeId, int $bHlc, ?int $bInstance, string $bChangeId): int
+    {
+        // strcmp, not <=>: PHP compares numeric strings as numbers, and hex such as "...01e5" reads as 1e5.
+        return ($aHlc <=> $bHlc) ?: (($aInstance ?? 0) <=> ($bInstance ?? 0))
+            ?: max(-1, min(1, strcmp(self::uuidHex($aChangeId), self::uuidHex($bChangeId))));
+    }
+
+    /** 32 lower-case hex digits; equal-length hex strings compare like the 128-bit numbers. */
+    private static function uuidHex(string $u): string
+    {
+        $h = strtolower(str_replace('-', '', $u));
+        if (!preg_match('/^[0-9a-f]{32}$/', $h)) {
+            throw new \InvalidArgumentException('invalid uuid');
+        }
+        return $h;
+    }
 }

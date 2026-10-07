@@ -15,6 +15,19 @@ Generated from `templates/snmp/*.tmpl` by `tools/gen.py`; the files here are the
 
 Layout inside every module arc: notifications `.0`, objects `.1`, conformance `.2`.
 
+## Changing a published module
+
+SMIv2 rules apply (RFC 2578, section 10): add objects, enum values and groups with a new
+`REVISION`; never renumber an object or change its `SYNTAX`; a change of meaning needs a new object
+and `STATUS deprecated` on the old one.
+
+One exception, for corrections only: within 14 days of the first `REVISION` of a module, and only
+while no consumer outside the implementing repository reads the object, a `DESCRIPTION` MAY be
+corrected to match the implementation, also when the meaning changes. The new `REVISION` says
+"correction to match the implementation" and names the objects. After that window, or once a
+consumer exists, deprecate and replace. (CATBOY-HOST-MIB `202610020000Z`, the sysctl "equal or
+stricter" rule, is such a correction.)
+
 Access: SNMPv3 authPriv only, read-only views. A host is joined to its CatCMDB record by `catboyAgentEnrolmentId`, not by sysObjectID or address.
 
 Lint locally: `python3 tools/gen.py && python3 tools/mibcheck.py`.

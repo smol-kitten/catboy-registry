@@ -63,6 +63,10 @@ def vectors(vec: pathlib.Path) -> int:
             got = "drift"
         check(f"hlc_receive {c['name']}", got, c.get("error") or int(c["want"]))
     for c in h["compare"]: check(f"hlc_compare {c['a']},{c['b']}", o.hlc_compare(int(c["a"]), int(c["b"])), c["want"])
+    for c in h["change_compare"]:
+        a, b = c["a"], c["b"]
+        check(f"change_compare {c['name']}", err(o.change_compare, int(a["hlc"]), a["instance"], a["change_id"], int(b["hlc"]), b["instance"], b["change_id"]),
+              "ERR" if c.get("error") else c["want"])
     for c in json.loads((vec / "state.json").read_text())["root"]:
         check(f"state_root {len(c['entries'])} entries", o.state_root(c["entries"]), c["want"])
     for f in fails: print("FAIL", f)

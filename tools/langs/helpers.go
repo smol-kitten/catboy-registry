@@ -291,6 +291,27 @@ func HlcReceive(last, remote, nowMs, maxDriftMs uint64) (uint64, error) {
 	return max3(nowMs<<16, last+1, remote+1), nil
 }
 
+// ChangeCompare orders two changes by the triple (hlc, instance, change_id)
+// (specs/state/README.md 3.3). A missing instance is 0. change_id compares as an
+// unsigned 128-bit integer (the 16 UUID bytes, big-endian).
+func ChangeCompare(aHlc, aInstance uint64, aChangeID string, bHlc, bInstance uint64, bChangeID string) (int, error) {
+	if c := HlcCompare(aHlc, bHlc); c != 0 {
+		return c, nil
+	}
+	if c := HlcCompare(aInstance, bInstance); c != 0 {
+		return c, nil
+	}
+	a, err := parseUUID(aChangeID)
+	if err != nil {
+		return 0, err
+	}
+	b, err := parseUUID(bChangeID)
+	if err != nil {
+		return 0, err
+	}
+	return bytes.Compare(a[:], b[:]), nil
+}
+
 // StateRoot is sha256 over the sorted "id:rev:content_hash\n" lines.
 type StateEntry struct {
 	ID          string

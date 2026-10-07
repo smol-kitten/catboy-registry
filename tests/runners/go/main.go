@@ -165,6 +165,16 @@ func vectors(dir string) int {
 			A, B string
 			Want int
 		}
+		ChangeCompare []struct {
+			Name string
+			A, B struct {
+				Hlc      string
+				Instance *uint64
+				ChangeID string `json:"change_id"`
+			}
+			Want  int
+			Error bool
+		} `json:"change_compare"`
 	}
 	load(dir, "hlc.json", &h)
 	for _, c := range h.Encode {
@@ -194,6 +204,20 @@ func vectors(dir string) int {
 	}
 	for _, c := range h.Compare {
 		check("hlc_compare "+c.A+","+c.B, registry.HlcCompare(u64(c.A), u64(c.B)), c.Want)
+	}
+	inst := func(p *uint64) uint64 {
+		if p == nil {
+			return 0
+		}
+		return *p
+	}
+	for _, c := range h.ChangeCompare {
+		v, err := registry.ChangeCompare(u64(c.A.Hlc), inst(c.A.Instance), c.A.ChangeID, u64(c.B.Hlc), inst(c.B.Instance), c.B.ChangeID)
+		if c.Error {
+			check("change_compare "+c.Name, err != nil, true)
+			continue
+		}
+		check("change_compare "+c.Name, v, c.Want)
 	}
 	var st struct {
 		Root []struct {

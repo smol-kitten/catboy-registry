@@ -102,6 +102,15 @@ static class Program
             Check($"hlc_receive {S(c, "name")}", got, Err(c) ? S(c, "error") : S(c, "want"));
         }
         foreach (var c in h.GetProperty("compare").EnumerateArray()) Check($"hlc_compare {S(c, "a")},{S(c, "b")}", Hlc.Compare(U(c, "a"), U(c, "b")), c.GetProperty("want").GetInt32());
+        foreach (var c in h.GetProperty("change_compare").EnumerateArray())
+        {
+            JsonElement a = c.GetProperty("a"), b = c.GetProperty("b");
+            ulong? I(JsonElement e) => e.GetProperty("instance").ValueKind == JsonValueKind.Null ? null : e.GetProperty("instance").GetUInt64();
+            string got;
+            try { got = Hlc.CompareChange(U(a, "hlc"), I(a), S(a, "change_id"), U(b, "hlc"), I(b), S(b, "change_id")).ToString(); }
+            catch (ArgumentException) { got = "ERR"; }
+            Check($"change_compare {S(c, "name")}", got, Err(c) ? "ERR" : c.GetProperty("want").GetInt32().ToString());
+        }
         foreach (var f in Fails) Console.WriteLine("FAIL " + f);
         Console.WriteLine($"dotnet: {n - Fails.Count}/{n} vector checks passed");
         return Fails.Count > 0 ? 1 : 0;

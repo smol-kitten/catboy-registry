@@ -104,6 +104,15 @@ function vectors(string $dir): int
     foreach ($h['compare'] as $c) {
         $check("hlc_compare {$c['a']},{$c['b']}", Hlc::compare((int) $c['a'], (int) $c['b']), $c['want']);
     }
+    foreach ($h['change_compare'] as $c) {
+        [$a, $b] = [$c['a'], $c['b']];
+        try {
+            $got = Hlc::compareChange((int) $a['hlc'], $a['instance'], $a['change_id'], (int) $b['hlc'], $b['instance'], $b['change_id']);
+        } catch (\InvalidArgumentException) {
+            $got = 'ERR';
+        }
+        $check("change_compare {$c['name']}", $got, !empty($c['error']) ? 'ERR' : $c['want']);
+    }
     foreach ($fails as $f) {
         echo "FAIL $f\n";
     }
