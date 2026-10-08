@@ -4,7 +4,7 @@ services:
     purpose: discovery and capability announcement for fleet agents and tools (opt-in)
     txt:
       v:     "record version, integer, currently 1"
-      roles: "comma list: agent,netpaw,catcmdb,pki,repo"
+      roles: "comma list: agent,netpaw,catcmdb,pki,repo,pongnet"
       pki:   "SHA-256 fingerprint of the root CA the announcer trusts"
       caps:  "comma list of capability ids from specs/capabilities (arc .1.10)"
       site:  "site slug"
