@@ -36,6 +36,7 @@ Enterprise arc: `1.3.6.1.4.1.66963` (assignee: Marc Schneider)
 | `1.3.6.1.4.1.66963.1.11.1` | catboy-agent | reserved | catboy.systems | 2026-09-30 | catboy-agent (host agent, AgentX subagent); hosts report sysObjectID 1.4.1 | [spec](../specs/software/README.md) |
 | `1.3.6.1.4.1.66963.1.11.2` | catwaf | reserved | catboy.systems | 2026-09-30 | CatWAF (web application firewall and reverse proxy) | [spec](../specs/software/README.md) |
 | `1.3.6.1.4.1.66963.1.11.3` | pawkit | reserved | catboy.systems | 2026-09-30 | pawkit (fleet toolkit and hub state sync) | [spec](../specs/software/README.md) |
+| `1.3.6.1.4.1.66963.1.11.4` | pongnet | reserved | catboy.systems | 2026-10-08 | PongNet (two-player pong whose game frames travel as ICMP echo payloads or TCP; frames start with the enterprise number) | [spec](../specs/software/README.md) |
 | `1.3.6.1.4.1.66963.1.12` | instances | reserved | catboy.systems | 2026-09-30 | deployed instances - one small number per instance that needs one; neutral names, never a hostname or an address | [spec](../specs/state/README.md) |
 | `1.3.6.1.4.1.66963.1.13` | state-versioning | reserved | catboy.systems | 2026-09-30 | state versioning - system, epoch chain, seq, root, HLC and the /.well-known/catboy-state document | [spec](../specs/state/README.md) |
 

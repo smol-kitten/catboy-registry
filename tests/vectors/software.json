@@ -43,6 +43,14 @@
    "purl": "pkg:github/polo-nyan/pawkit",
    "repo": "https://github.com/polo-nyan/pawkit",
    "id": "dc7c5da1-dce2-5d60-8922-44c5e26b6056"
+  },
+  {
+   "name": "pongnet",
+   "arc": 4,
+   "oid": "1.3.6.1.4.1.66963.1.11.4",
+   "purl": "pkg:github/smol-kitten/pongnet",
+   "repo": "https://github.com/smol-kitten/PongNet",
+   "id": "08c206cb-4581-5603-bbd8-f699c955a7a7"
   }
  ],
  "cases": [

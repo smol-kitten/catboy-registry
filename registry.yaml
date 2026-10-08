@@ -226,6 +226,15 @@ arcs:
   spec: specs/software/README.md
   purl: pkg:github/polo-nyan/pawkit
   repo: https://github.com/polo-nyan/pawkit
+- oid: 1.11.4
+  name: pongnet
+  status: reserved
+  owner: catboy.systems
+  since: '2026-10-08'
+  purpose: PongNet (two-player pong whose game frames travel as ICMP echo payloads or TCP; frames start with the enterprise number)
+  spec: specs/software/README.md
+  purl: pkg:github/smol-kitten/pongnet
+  repo: https://github.com/smol-kitten/PongNet
 - oid: '1.12'
   name: instances
   status: reserved
