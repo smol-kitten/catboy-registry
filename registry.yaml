@@ -233,7 +233,7 @@ arcs:
   since: '2026-10-08'
   purpose: PongNet (two-player pong whose game frames travel as ICMP echo payloads or TCP; frames start with the enterprise number)
   spec: specs/software/README.md
-  purl: pkg:github/smol-kitten/pongnet
+  purl: pkg:github/smol-kitten/PongNet
   repo: https://github.com/smol-kitten/PongNet
 - oid: '1.12'
   name: instances
