@@ -13,6 +13,7 @@ entry, a build or a data format. `tools/lint.py` refuses a registry entry below 
 | `.1.11.1` | catboy-agent | `pkg:github/polo-nyan/catboy-agent` | polo-nyan/catboy-agent | hosts report sysObjectID `.1.4.1` (field `sysobjectid`) |
 | `.1.11.2` | catwaf | `pkg:github/smol-kitten/cat-waf` | smol-kitten/cat-waf | |
 | `.1.11.3` | pawkit | `pkg:github/polo-nyan/pawkit` | polo-nyan/pawkit | |
+| `.1.11.4` | pongnet | `pkg:github/smol-kitten/PongNet` | smol-kitten/PongNet | data format `.4.1.1` = wire format 1 (PEN-prefixed frame, see that repo's docs/WIRE.md) |
 
 `registry.yaml` is the source of truth. This table is a copy for reading.
 

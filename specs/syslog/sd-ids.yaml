@@ -10,3 +10,6 @@ sd_ids:
   - id: dropmenot@66963
     purpose: DropMeNot audit events to a SIEM
     params: {actor: "user id", object: "object id", action: "audit action", ip_hash: "hashed client address"}
+  - id: pongnet@66963
+    purpose: PongNet server events (player join and leave, points, game over)
+    params: {event: "join|leave|point|gameover", slot: "paddle slot 0 or 1", transport: "icmp|tcp", score: "left:right"}

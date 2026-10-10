@@ -140,7 +140,7 @@ func vectors(dir string) int {
 	for _, c := range sw.Channels {
 		check("channel "+c.Name, registry.Channels[c.Number], c.Name)
 	}
-	ids := map[string]string{"catboy-agent": registry.CatboyAgentId, "catwaf": registry.CatwafId, "pawkit": registry.PawkitId}
+	ids := map[string]string{"catboy-agent": registry.CatboyAgentId, "catwaf": registry.CatwafId, "pawkit": registry.PawkitId, "pongnet": registry.PongnetId}
 	for _, p := range sw.Products {
 		check("product "+p.Name, ids[p.Name], p.ID)
 		check("product "+p.Name+" oid", registry.SoftwareOid(p.Arc), p.Oid)

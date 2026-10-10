@@ -67,7 +67,7 @@ static class Program
         var chans = s.GetProperty("channels").EnumerateArray().ToList();
         Check("channel count", Oid.Channels.Count, chans.Count);
         foreach (var c in chans) Check($"channel {S(c, "name")}", Oid.Channels[c.GetProperty("number").GetInt32()], S(c, "name"));
-        var ids = new Dictionary<string, string> { ["catboy-agent"] = Oid.CatboyAgentId, ["catwaf"] = Oid.CatwafId, ["pawkit"] = Oid.PawkitId };
+        var ids = new Dictionary<string, string> { ["catboy-agent"] = Oid.CatboyAgentId, ["catwaf"] = Oid.CatwafId, ["pawkit"] = Oid.PawkitId, ["pongnet"] = Oid.PongnetId };
         foreach (var pr in s.GetProperty("products").EnumerateArray())
         {
             Check($"product {S(pr, "name")}", ids[S(pr, "name")], S(pr, "id"));

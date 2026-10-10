@@ -80,7 +80,7 @@ function vectors(string $dir): int
     }
     $s = load($dir, 'software.json');
     $check('channels', Oid::CHANNELS, array_column($s['channels'], 'name', 'number'));
-    $ids = ['catboy-agent' => Oid::CATBOY_AGENT_ID, 'catwaf' => Oid::CATWAF_ID, 'pawkit' => Oid::PAWKIT_ID];
+    $ids = ['catboy-agent' => Oid::CATBOY_AGENT_ID, 'catwaf' => Oid::CATWAF_ID, 'pawkit' => Oid::PAWKIT_ID, 'pongnet' => Oid::PONGNET_ID];
     foreach ($s['products'] as $pr) {
         $check("product {$pr['name']}", $ids[$pr['name']], $pr['id']);
         $check("product {$pr['name']} oid", Ids::softwareOid($pr['arc']), $pr['oid']);
