@@ -228,7 +228,7 @@ arcs:
   repo: https://github.com/polo-nyan/pawkit
 - oid: 1.11.4
   name: pongnet
-  status: reserved
+  status: active
   owner: catboy.systems
   since: '2026-10-08'
   purpose: PongNet (two-player pong whose game frames travel as ICMP echo payloads or TCP; frames start with the enterprise number)
