@@ -6,40 +6,44 @@ tags:
 - mermaid
 - structure
 - auto
-summary: 'Code map: catboy-registry — 6 components, 4 call-dependencies (top); core:
-  Hlc, helpers.go, helpers.py, Ids.php'
+summary: 'Code map: catboy-registry — 7 components, 6 call-dependencies (top); core:
+  Hlc, Ids, helpers.py, gen.py'
 related: []
 web: []
 ---
 
-Code map: catboy-registry — 6 components, 4 call-dependencies (top); core: Hlc, helpers.go, helpers.py, Ids.php
+Code map: catboy-registry — 7 components, 6 call-dependencies (top); core: Hlc, Ids, helpers.py, gen.py
 
 _Auto-generated (deterministic, no AI) from the symbol index._
 
 ## Core components (PageRank — most depended-upon)
-- `Hlc` — 0.338
-- `helpers.go` — 0.183
-- `helpers.py` — 0.183
-- `Ids.php` — 0.099
-- `vectors.py` — 0.099
-- `Ids` — 0.099
+- `Hlc` — 0.432
+- `Ids` — 0.137
+- `helpers.py` — 0.137
+- `gen.py` — 0.074
+- `asn1check.py` — 0.074
+- `vectors.py` — 0.074
+- `helpers.go` — 0.074
 
 ## Call dependencies (who calls whom)
 ```mermaid
 graph LR
   n_Hlc["Hlc"]
   n_Ids["Ids"]
-  n_Ids_php["Ids.php"]
+  n_asn1check_py["asn1check.py"]
+  n_gen_py["gen.py"]
   n_helpers_go["helpers.go"]
   n_helpers_py["helpers.py"]
   n_vectors_py["vectors.py"]
   n_vectors_py -->|27| n_helpers_py
+  n_gen_py -->|6| n_Ids
   n_Ids -->|4| n_Hlc
+  n_asn1check_py -->|4| n_Hlc
+  n_helpers_py -->|4| n_Hlc
   n_helpers_go --> n_Hlc
-  n_Ids_php --> n_helpers_go
 ```
 
 ## Largest components (by member count)
-- `Ids` — 15 members
+- `Ids` — 29 members
+- `Hlc` — 14 members
 - `Program` — 11 members
-- `Hlc` — 7 members

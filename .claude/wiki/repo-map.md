@@ -5,15 +5,15 @@ tags:
 - repo-map
 - structure
 - auto
-summary: 'Repo map: catboy-registry — Python (9), PHP (3), C# (2), Go (2); 74 tracked
+summary: 'Repo map: catboy-registry — Python (9), PHP (3), C# (2), Go (2); 83 tracked
   files; C#, Go'
 related: []
 web: []
 ---
 
-Repo map: catboy-registry — Python (9), PHP (3), C# (2), Go (2); 74 tracked files; C#, Go
+Repo map: catboy-registry — Python (9), PHP (3), C# (2), Go (2); 83 tracked files; C#, Go
 
-_Auto-generated (deterministic, no AI) 2026-11-02 · main@f5206f6._
+_Auto-generated (deterministic, no AI) 2026-11-03 · main@491e423._
 
 ## Stack
 - Languages: Python (9), PHP (3), C# (2), Go (2)
@@ -24,7 +24,8 @@ _Auto-generated (deterministic, no AI) 2026-11-02 · main@f5206f6._
 - `templates/` — 16 files
 - `tests/` — 13 files
 - `tools/` — 12 files
-- `(root)/` — 6 files
+- `.claude/` — 8 files
+- `(root)/` — 7 files
 - `.github/` — 2 files
 - `docs/` — 1 files
 - `schema/` — 1 files

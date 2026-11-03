@@ -8,6 +8,9 @@ related: []
 web: []
 ---
 
+### 2026-11-03
+- `491e423` chore(docs): refresh indexes + wiki
+
 ### 2026-11-02
 - `f5206f6` chore(ci): add docs-refresh workflow (autowiki Phase 2) [skip ci] (#5)
 - `fffd14a` Activate .1.11.4 pongnet (#15)
@@ -32,5 +35,4 @@ web: []
 - `ca0bbb9` feat: registry skeleton — registry.yaml (pen: null, reserved arcs), schema, lint/immutability/gen tools, spec stubs, CI
 - `9bda492` Initial commit
 
-
-<!--last:f5206f6a2a72b7ab026c2137c4c4d52725ad0865-->
+<!--last:491e42332cf6bf3418b395cff10e8765b0bccc4e-->
