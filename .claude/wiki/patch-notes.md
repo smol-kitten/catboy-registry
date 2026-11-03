@@ -9,6 +9,10 @@ web: []
 ---
 
 ### 2026-11-03
+- `253c2d9` chore(ci): docs-refresh workflow to DOCGEN_REF 26ecf96 (#16)
+- `8946b62` chore(docs): refresh indexes + wiki
+
+### 2026-11-03
 - `491e423` chore(docs): refresh indexes + wiki
 
 ### 2026-11-02
@@ -35,4 +39,4 @@ web: []
 - `ca0bbb9` feat: registry skeleton — registry.yaml (pen: null, reserved arcs), schema, lint/immutability/gen tools, spec stubs, CI
 - `9bda492` Initial commit
 
-<!--last:491e42332cf6bf3418b395cff10e8765b0bccc4e-->
+<!--last:253c2d9fd3839fed947a09ef96f334c9fe61ed2c-->
