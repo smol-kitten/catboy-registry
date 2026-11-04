@@ -6,7 +6,7 @@ _4 page(s) in 4 section(s). Top-level map — open a page for detail._
 - [catboy-registry patch notes](patch-notes.md) — Auto-generated commit log for catboy-registry (deterministic).
 
 ## code-map
-- [catboy-registry code map](code-map.md) — Code map: catboy-registry — 7 components, 6 call-dependencies (top); core: Hlc, Ids, helpers.py, gen.py
+- [catboy-registry code map](code-map.md) — Code map: catboy-registry — 7 components, 6 call-dependencies (top); core: Hlc, helpers.py, Ids, helpers.go
 
 ## repo-map
 - [catboy-registry repo map](repo-map.md) — Repo map: catboy-registry — Python (9), PHP (3), C# (2), Go (2); 83 tracked files; C#, Go
