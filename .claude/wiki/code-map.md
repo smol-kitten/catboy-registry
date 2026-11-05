@@ -22,8 +22,8 @@ _Auto-generated (deterministic, no AI) from the symbol index._
 - `Ids` — 0.137
 - `helpers.go` — 0.074
 - `asn1check.py` — 0.074
-- `vectors.py` — 0.074
 - `gen.py` — 0.074
+- `vectors.py` — 0.074
 
 ## Call dependencies (who calls whom)
 ```mermaid
