@@ -7,21 +7,21 @@ tags:
 - structure
 - auto
 summary: 'Code map: catboy-registry — 6 components, 4 call-dependencies (top); core:
-  Hlc, helpers.go, helpers.py, Ids'
+  Hlc, helpers.py, helpers.go, vectors.py'
 related: []
 web: []
 ---
 
-Code map: catboy-registry — 6 components, 4 call-dependencies (top); core: Hlc, helpers.go, helpers.py, Ids
+Code map: catboy-registry — 6 components, 4 call-dependencies (top); core: Hlc, helpers.py, helpers.go, vectors.py
 
 _Auto-generated (deterministic, no AI) from the symbol index._
 
 ## Core components (PageRank — most depended-upon)
 - `Hlc` — 0.338
-- `helpers.go` — 0.183
 - `helpers.py` — 0.183
-- `Ids` — 0.099
+- `helpers.go` — 0.183
 - `vectors.py` — 0.099
+- `Ids` — 0.099
 - `Ids.php` — 0.099
 
 ## Call dependencies (who calls whom)
