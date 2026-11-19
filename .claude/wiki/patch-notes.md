@@ -8,6 +8,9 @@ related: []
 web: []
 ---
 
+### 2026-11-19
+- `e226e6f` chore(docs): refresh indexes + wiki
+
 ### 2026-11-18
 - `fc4e584` chore(docs): refresh indexes + wiki
 
@@ -84,4 +87,4 @@ web: []
 - `ca0bbb9` feat: registry skeleton — registry.yaml (pen: null, reserved arcs), schema, lint/immutability/gen tools, spec stubs, CI
 - `9bda492` Initial commit
 
-<!--last:fc4e5844cf4ddb10e64cdfbf1415e709dbcc3f1c-->
+<!--last:e226e6f3a4f392c331f69f4a72a25d6744080b88-->
